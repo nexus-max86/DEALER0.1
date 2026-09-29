@@ -1,7 +1,13 @@
-import type { NextConfig } from "next";
-
+import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
-  /* config options here */
-};
-
-export default nextConfig;
+  compress: true,
+  poweredByHeader: false,
+  async headers() {
+    return [{ source: '/(.*)', headers: [
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'X-Frame-Options', value: 'DENY' },
+      { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+    ]}]
+  },
+}
+export default nextConfig
