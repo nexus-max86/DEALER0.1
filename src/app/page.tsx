@@ -5,7 +5,7 @@ import ProductCard from '@/components/ProductCard'
 
 export const metadata: Metadata = {
   title: 'Accueil - Achetez et vendez à Lubumbashi',
-  description: 'Découvrez des milliers de produits près de chez vous à Lubumbashi. Vêtements, chaussures, téléphones, beauté et plus.',
+  description: 'Découvrez des milliers de produits à Lubumbashi sur DEALER.',
 }
 
 const categories = [
@@ -31,9 +31,17 @@ const produits = [
 ]
 
 const avis = [
-  { nom: 'Marie K.', avatar: 'M', note: 5, texte: 'J'ai trouvé mon vendeur en moins de 5 minutes. Livraison rapide et produit conforme. Je recommande DEALER !', date: 'Il y a 2 jours' },
-  { nom: 'Jean-Pierre M.', avatar: 'J', note: 5, texte: 'En tant que vendeur, j'ai vendu mon téléphone en 24h. La plateforme est simple et les acheteurs sont sérieux.', date: 'Il y a 1 semaine' },
-  { nom: 'Amina B.', avatar: 'A', note: 5, texte: 'Enfin une marketplace sérieuse à Lubumbashi. Les vendeurs sont vérifiés et le support répond rapidement.', date: 'Il y a 2 semaines' },
+  { nom: 'Marie K.', avatar: 'M', note: 5, texte: "J'ai trouvé mon vendeur en moins de 5 minutes. Livraison rapide et produit conforme. Je recommande DEALER !", date: 'Il y a 2 jours' },
+  { nom: 'Jean-Pierre M.', avatar: 'J', note: 5, texte: "En tant que vendeur, j'ai vendu mon téléphone en 24h. La plateforme est simple et les acheteurs sont sérieux.", date: 'Il y a 1 semaine' },
+  { nom: 'Amina B.', avatar: 'A', note: 5, texte: "Enfin une marketplace sérieuse à Lubumbashi. Les vendeurs sont vérifiés et le support répond rapidement.", date: 'Il y a 2 semaines' },
+]
+
+const faqItems = [
+  { q: 'Comment vendre sur DEALER ?', r: "Créez un compte gratuit, cliquez sur Vendre, ajoutez vos photos et publiez. Vos acheteurs vous contactent directement." },
+  { q: 'Est-ce que DEALER est gratuit ?', r: 'Oui, publier une annonce est 100% gratuit.' },
+  { q: 'Comment contacter un vendeur ?', r: 'Cliquez sur Contacter sur la page produit. Vous pouvez aussi faire une offre de prix.' },
+  { q: 'Mes données sont-elles sécurisées ?', r: "Oui. Toutes vos données sont chiffrées. Nous ne vendons jamais vos informations." },
+  { q: 'Comment signaler un problème ?', r: 'Notre équipe répond sous 24 heures via support@dealer-luba.com.' },
 ]
 
 export default function Home() {
@@ -157,13 +165,7 @@ export default function Home() {
           <div className="container" style={{ maxWidth: 720 }}>
             <h2 style={{ fontSize: 22, fontWeight: 700, textAlign: 'center', marginBottom: 32 }}>Questions fréquentes</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {[
-                { q: 'Comment vendre sur DEALER ?', r: 'Créez un compte gratuit, cliquez sur Vendre, ajoutez vos photos et publiez. Vos acheteurs vous contactent directement.' },
-                { q: 'Est-ce que DEALER est gratuit ?', r: 'Oui, publier une annonce est 100% gratuit.' },
-                { q: 'Comment contacter un vendeur ?', r: 'Cliquez sur Contacter sur la page produit. Vous pouvez aussi faire une offre de prix.' },
-                { q: 'Mes données sont-elles sécurisées ?', r: 'Oui. Toutes vos données sont chiffrées. Nous ne vendons jamais vos informations.' },
-                { q: 'Comment signaler un problème ?', r: 'Notre équipe répond sous 24 heures via support@dealer-luba.com.' },
-              ].map((item, i) => (
+              {faqItems.map((item, i) => (
                 <details key={i} className="card" style={{ overflow: 'hidden' }}>
                   <summary style={{ padding: '16px 20px', cursor: 'pointer', fontWeight: 600, fontSize: 15, display: 'flex', justifyContent: 'space-between', alignItems: 'center', userSelect: 'none' }}>
                     {item.q}

@@ -33,7 +33,7 @@ export default function Sell() {
     setErreur('')
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
-      setErreur('Tu dois être connecté pour publier une annonce.')
+      setErreur("Tu dois être connecté pour publier une annonce.")
       setLoading(false)
       return
     }
@@ -43,7 +43,7 @@ export default function Sell() {
       vendeur_id: user.id, statut: 'actif',
     })
     if (error) {
-      setErreur('Erreur lors de la publication. Réessaie.')
+      setErreur("Erreur lors de la publication. Réessaie.")
     } else {
       window.location.href = '/merci'
     }
@@ -164,7 +164,7 @@ export default function Sell() {
                 <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
                   <button onClick={() => setEtape(3)} style={{ flex: 1, padding: '13px 0', borderRadius: 8, border: '1.5px solid var(--border)', background: 'transparent', cursor: 'pointer', fontWeight: 600 }}>← Retour</button>
                   <button onClick={publier} disabled={loading || !prix} style={{ flex: 2, padding: '14px 0', borderRadius: 8, border: 'none', background: loading || !prix ? 'var(--border)' : 'var(--primary)', color: 'white', cursor: loading || !prix ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 15 }}>
-                    {loading ? 'Publication...' : '🚀 Publier l'annonce'}
+                    {loading ? 'Publication...' : "🚀 Publier l'annonce"}
                   </button>
                 </div>
               </div>
