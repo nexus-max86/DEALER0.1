@@ -27,7 +27,7 @@ const produits = [
   { id: 5, title: 'Sac à main cuir marron', price: '40$', brand: 'H&M', condition: 'Neuf', city: 'Lubumbashi', icon: '👜' },
   { id: 6, title: 'Nike Air Max 90 Blanc', price: '75$', brand: 'Nike', size: '43', condition: 'Bon état', city: 'Lubumbashi', icon: '👟' },
   { id: 7, title: 'Crème hydratante visage', price: '12$', brand: 'Nivea', condition: 'Neuf', city: 'Lubumbashi', icon: '💄' },
-  { id: 8, title: 'Veste en jean slim fit', price: '35$', brand: 'Levi's', size: 'L', condition: 'Bon état', city: 'Lubumbashi', icon: '👕' },
+  { id: 8, title: 'Veste en jean slim fit', price: '35$', brand: 'Levis', size: 'L', condition: 'Bon état', city: 'Lubumbashi', icon: '👕' },
 ]
 
 const avis = [
