@@ -14,7 +14,7 @@ export default function Header() {
         <nav className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <a href="/favorites" className="header-link" style={{ padding: '8px 10px', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 500, borderRadius: 8, transition: 'color 0.2s' }}>🤍 Favoris</a>
           <a href="/messages" className="header-link" style={{ padding: '8px 10px', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 500, borderRadius: 8, transition: 'color 0.2s' }}>💬 Messages</a>
-          <a href="/auth" className="header-link" style={{ padding: '8px 10px', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 500, borderRadius: 8, transition: 'color 0.2s' }}>Mon compte</a>
+          <a href="/account" className="header-link" style={{ padding: '8px 10px', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 500, borderRadius: 8, transition: 'color 0.2s' }}>👤 Mon compte</a>
           <a href="/sell" className="btn-sell" style={{ background: 'var(--primary)', color: 'white', padding: '9px 18px', borderRadius: 24, fontSize: 14, fontWeight: 700, transition: 'background 0.2s' }}>Vendre</a>
         </nav>
       </div>
