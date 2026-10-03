@@ -1,0 +1,52 @@
+
+-- Colle ce SQL dans Supabase > SQL Editor > Run
+
+-- Table avis
+create table if not exists avis (
+  id uuid default gen_random_uuid() primary key,
+  auteur_id uuid references profiles(id) on delete cascade,
+  vendeur_id uuid references profiles(id) on delete cascade,
+  produit_id uuid references produits(id) on delete set null,
+  note integer check (note >= 1 and note <= 5),
+  commentaire text,
+  created_at timestamp default now()
+);
+alter table avis enable row level security;
+create policy "Avis publics" on avis for select using (true);
+create policy "Laisser un avis" on avis for insert with check (auth.uid() = auteur_id);
+
+-- Table notifications
+create table if not exists notifications (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references profiles(id) on delete cascade,
+  type text,
+  titre text,
+  contenu text,
+  lien text,
+  lu boolean default false,
+  created_at timestamp default now()
+);
+alter table notifications enable row level security;
+create policy "Voir ses notifications" on notifications for select using (auth.uid() = user_id);
+create policy "Marquer comme lu" on notifications for update using (auth.uid() = user_id);
+
+-- Fonction pour créer une notification quand un message est envoyé
+create or replace function notifier_message()
+returns trigger as $$
+begin
+  insert into notifications (user_id, type, titre, contenu, lien)
+  values (
+    NEW.destinataire_id,
+    'message',
+    'Nouveau message',
+    NEW.contenu,
+    '/messages/' || NEW.expediteur_id
+  );
+  return NEW;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_new_message on messages;
+create trigger on_new_message
+  after insert on messages
+  for each row execute function notifier_message();
