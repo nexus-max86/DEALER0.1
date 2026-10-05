@@ -17,11 +17,11 @@ export default function RGPD() {
           <p style={{ color: 'var(--text-secondary)', marginBottom: 32 }}>Conformément au Règlement Général sur la Protection des Données.</p>
           <div className="card" style={{ padding: 32, marginBottom: 20 }}>
             {[
-              ['Droit d'accès', 'Demandez une copie de toutes vos données.'],
+              ["Droit d\u2019accès", 'Demandez une copie de toutes vos données.'],
               ['Droit de rectification', 'Corrigez vos données dans votre profil ou par email.'],
-              ['Droit à l'effacement', 'Demandez la suppression complète. Traitement sous 72h.'],
+              ["Droit à l\u2019effacement", 'Demandez la suppression complète. Traitement sous 72h.'],
               ['Droit à la portabilité', 'Recevez vos données en format JSON ou CSV.'],
-              ['Droit d'opposition', 'Opposez-vous au traitement à des fins commerciales.'],
+              ["Droit d\u2019opposition", 'Opposez-vous au traitement à des fins commerciales.'],
               ['Droit à la limitation', 'Demandez la limitation dans certains cas prévus par la loi.'],
             ].map(([titre, texte], i) => (
               <div key={i} style={{ display: 'flex', gap: 16, borderBottom: i < 5 ? '1px solid var(--border)' : 'none', paddingBottom: i < 5 ? 24 : 0, marginBottom: i < 5 ? 24 : 0 }}>
