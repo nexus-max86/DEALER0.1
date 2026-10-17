@@ -60,3 +60,7 @@ details summary::-webkit-details-marker { display: none; }
 /* Tuiles de catégories en photo */
 .cat-photo img { transition: transform 0.3s; }
 .cat-photo:hover img { transform: scale(1.05); }
+
+/* Bandeau cookies : compact, au-dessus de la barre du bas sur mobile */
+.cookie-banner { bottom: 16px; }
+@media (max-width: 768px) { .cookie-banner { bottom: 76px; } }
