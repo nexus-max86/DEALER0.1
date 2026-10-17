@@ -262,10 +262,10 @@ export default function Sell() {
               <div>
                 <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Quelle catégorie ?</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 20 }}>Choisis celle qui correspond le mieux.</p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 10, marginBottom: 24 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 10, marginBottom: 24 }}>
                   {CATEGORIES.map(c => (
                     <button key={c.slug} type="button" onClick={() => setCat(c.slug)} aria-pressed={cat === c.slug}
-                      style={{ position: 'relative', height: 92, borderRadius: 10, overflow: 'hidden', cursor: 'pointer', padding: 0, border: cat === c.slug ? '3px solid var(--primary)' : '1px solid var(--border)', background: '#0b2a30' }}>
+                      style={{ position: 'relative', height: 84, borderRadius: 10, overflow: 'hidden', cursor: 'pointer', padding: 0, border: cat === c.slug ? '3px solid var(--primary)' : '1px solid var(--border)', background: '#0b2a30' }}>
                       <img src={photo(c.photo, 320, 200)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.75 }} />
                       <span style={{ position: 'absolute', left: 10, bottom: 8, color: 'white', fontWeight: 700, fontSize: 15, textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}>{c.label}</span>
                       {cat === c.slug && <span style={{ position: 'absolute', top: 6, right: 6, background: 'var(--primary)', color: 'white', borderRadius: '50%', width: 24, height: 24, fontSize: 14, lineHeight: '24px' }}>✓</span>}

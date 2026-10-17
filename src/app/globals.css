@@ -64,3 +64,11 @@ details summary::-webkit-details-marker { display: none; }
 /* Bandeau cookies : compact, au-dessus de la barre du bas sur mobile */
 .cookie-banner { bottom: 16px; }
 @media (max-width: 768px) { .cookie-banner { bottom: 76px; } }
+
+/* Catégories de l'accueil : 4 par ligne sur ordinateur, 2 sur téléphone */
+.grille-categories { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.grille-categories .cat-photo { height: 170px; }
+@media (max-width: 768px) {
+  .grille-categories { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .grille-categories .cat-photo { height: 120px; }
+}

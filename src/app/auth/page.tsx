@@ -266,7 +266,7 @@ export default function Auth() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14, fontSize: 15, lineHeight: 1.6 }}>
                 <p>Ton compte est créé. Pour l'activer :</p>
                 <ol style={{ paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <li>Ouvre ta boîte mail <b>{email.trim()}</b>.</li>
+                  <li>Ouvre ta boîte mail <b style={{ overflowWrap: 'anywhere' }}>{email.trim()}</b>.</li>
                   <li>Ouvre le message de confirmation. S'il n'est pas là, regarde dans <b>« Spam »</b> ou « Promotions ».</li>
                   <li>Clique sur le lien : tu reviens ici, déjà connecté.</li>
                 </ol>

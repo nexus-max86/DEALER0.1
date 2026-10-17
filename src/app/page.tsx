@@ -62,7 +62,7 @@ export default async function Home() {
         <section style={{ background: 'var(--white)', borderBottom: '1px solid var(--border)' }}>
           <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
             {[
-              { icon: '🆓', titre: 'Gratuit', texte: 'Compte et annonces sans frais' },
+              { icon: '🎁', titre: 'Gratuit', texte: 'Compte et annonces sans frais' },
               { icon: '⏱️', titre: 'Annonce en 2 minutes', texte: 'Photos, prix, c’est en ligne' },
               { icon: '💬', titre: 'Contact direct', texte: 'Les acheteurs t’écrivent sur WhatsApp' },
               { icon: '📍', titre: 'Près de chez toi', texte: 'Lubumbashi et environs' },
@@ -82,11 +82,11 @@ export default async function Home() {
         <section style={{ padding: '36px 0' }}>
           <div className="container">
             <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 18 }}>Explorer par catégorie</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12 }}>
-              {CATEGORIES.map(cat => (
+            <div className="grille-categories">
+              {CATEGORIES.filter(cat => cat.slug !== 'autre').map(cat => (
                 <a key={cat.slug} href={'/category/' + cat.slug} className="cat-photo"
-                  style={{ position: 'relative', display: 'block', height: 130, borderRadius: 12, overflow: 'hidden', background: '#0b2a30' }}>
-                  <img src={photo(cat.photo, 400, 300)} alt={cat.label} loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                  style={{ position: 'relative', display: 'block', borderRadius: 12, overflow: 'hidden', background: '#0b2a30' }}>
+                  <img src={photo(cat.photo, 600, 400)} alt={cat.label} loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                   <span style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.7) 100%)' }} />
                   <span style={{ position: 'absolute', left: 12, bottom: 10, color: 'white', fontWeight: 700, fontSize: 16 }}>{cat.label}</span>
                 </a>
