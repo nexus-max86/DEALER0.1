@@ -1,15 +1,17 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import CookieBanner from '@/components/CookieBanner'
+import { SITE_URL } from '@/lib/catalogue'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://dealer-luba.vercel.app'),
+  metadataBase: new URL(SITE_URL),
   title: { default: 'DEALER - Marketplace de Lubumbashi', template: '%s | DEALER' },
-  description: 'Achetez et vendez facilement a Lubumbashi. Vetements, chaussures, telephones et plus encore sur DEALER.',
+  description: 'Achetez et vendez facilement à Lubumbashi. Vêtements, chaussures, téléphones et plus encore sur DEALER.',
   openGraph: {
     title: 'DEALER - Marketplace de Lubumbashi',
-    description: 'Achetez et vendez facilement a Lubumbashi.',
-    url: 'https://dealer-luba.vercel.app',
+    description: 'Achetez et vendez facilement à Lubumbashi.',
+    images: ['https://images.unsplash.com/photo-1568720575666-84231057a1e2?auto=format&fit=crop&q=70&w=1200&h=630'],
+    url: SITE_URL,
     siteName: 'DEALER',
     locale: 'fr_CD',
     type: 'website',
@@ -30,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           '@type': 'LocalBusiness',
           name: 'DEALER Marketplace',
           description: 'Marketplace de Lubumbashi',
-          url: 'https://dealer-luba.vercel.app',
+          url: SITE_URL,
           address: { '@type': 'PostalAddress', addressLocality: 'Lubumbashi', addressCountry: 'CD' },
         })}} />
       </head>

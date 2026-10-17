@@ -1,64 +1,34 @@
 import type { Metadata } from 'next'
-import { createClient } from '@supabase/supabase-js'
 import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
+import CarteProduit, { type ProduitResume } from '@/components/CarteProduit'
+import { clientServeur } from '@/lib/serveur'
+import { CATEGORIES, PHOTO_ACCUEIL, PHOTOS_ETAPES, photo } from '@/lib/catalogue'
 
 export const metadata: Metadata = {
-  title: 'Accueil - Achetez et vendez à Lubumbashi',
-  description: "Découvrez des milliers de produits à Lubumbashi sur DEALER.",
+  title: 'Accueil · Achète et vends à Lubumbashi',
+  description: 'Publie ton article en 2 minutes avec tes photos. Les acheteurs de Lubumbashi te contactent directement sur WhatsApp.',
 }
 
-export const revalidate = 60 // Rafraîchit toutes les 60 secondes
-
-const categories = [
-  { slug: 'vetements', label: 'Vêtements', icon: '👕' },
-  { slug: 'chaussures', label: 'Chaussures', icon: '👟' },
-  { slug: 'telephones', label: 'Téléphones', icon: '📱' },
-  { slug: 'beaute', label: 'Beauté', icon: '💄' },
-  { slug: 'electronique', label: 'Électronique', icon: '💻' },
-  { slug: 'maison', label: 'Maison', icon: '🏠' },
-  { slug: 'automobile', label: 'Automobile', icon: '🚗' },
-  { slug: 'sport', label: 'Sport', icon: '⚽' },
-]
-
-const iconeParCategorie: Record<string, string> = {
-  chaussures: '👟',
-  vetements: '👕',
-  telephones: '📱',
-  beaute: '💄',
-  electronique: '💻',
-  automobile: '🚗',
-  maison: '🏠',
-  sport: '⚽',
-  autre: '📦',
-}
-
-const avis = [
-  { nom: 'Marie K.', avatar: 'M', note: 5, texte: "J'ai trouvé mon vendeur en moins de 5 minutes. Livraison rapide et produit conforme. Je recommande DEALER !", date: 'Il y a 2 jours' },
-  { nom: 'Jean-Pierre M.', avatar: 'J', note: 5, texte: "En tant que vendeur, j'ai vendu mon téléphone en 24h. La plateforme est simple et les acheteurs sont sérieux.", date: 'Il y a 1 semaine' },
-  { nom: 'Amina B.', avatar: 'A', note: 5, texte: "Enfin une marketplace sérieuse à Lubumbashi. Les vendeurs sont vérifiés et le support répond rapidement.", date: 'Il y a 2 semaines' },
-]
+// Les nouvelles annonces apparaissent immédiatement
+export const dynamic = 'force-dynamic'
 
 const faqItems = [
-  { q: 'Comment vendre sur DEALER ?', r: "Créez un compte gratuit, cliquez sur Vendre, ajoutez vos photos et publiez." },
-  { q: 'Est-ce que DEALER est gratuit ?', r: "Oui, publier une annonce est 100% gratuit." },
-  { q: 'Comment contacter un vendeur ?', r: "Cliquez sur Contacter sur la page produit." },
-  { q: "Mes données sont-elles sécurisées ?", r: "Oui. Toutes vos données sont chiffrées. Nous ne vendons jamais vos informations." },
-  { q: "Comment signaler un problème ?", r: "Notre équipe répond sous 24 heures via support@dealer-luba.com." },
+  { q: 'Comment vendre sur DEALER ?', r: 'Crée ton compte gratuit, touche « Vendre », ajoute les photos de ton article, son prix et ton numéro WhatsApp, puis publie. Ça prend 2 minutes.' },
+  { q: 'Est-ce que DEALER est gratuit ?', r: 'Oui. Créer un compte et publier une annonce sont gratuits.' },
+  { q: 'Comment contacter un vendeur ?', r: 'Ouvre l’annonce et touche « Contacter sur WhatsApp » : un message est préparé avec le lien de l’annonce.' },
+  { q: 'Comment acheter sans risque ?', r: 'Rencontre le vendeur dans un lieu public, vérifie l’article avant de payer et ne paie jamais à l’avance.' },
+  { q: 'Qui voit mon numéro ?', r: 'Ton numéro WhatsApp est affiché sur tes annonces pour que les acheteurs puissent t’écrire. Tu peux le changer à tout moment dans « Mon compte ».' },
 ]
 
-async function getProduits() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-  const { data } = await supabase
+async function getProduits(): Promise<ProduitResume[]> {
+  const { data } = await clientServeur()
     .from('produits')
-    .select('*')
+    .select('id, titre, prix, categorie, marque, ville, images, statut')
     .eq('statut', 'actif')
     .order('created_at', { ascending: false })
-    .limit(8)
-  return data || []
+    .limit(12)
+  return (data as ProduitResume[]) || []
 }
 
 export default async function Home() {
@@ -69,40 +39,38 @@ export default async function Home() {
       <Header />
       <main>
 
-        {/* HERO */}
-        <section style={{ background: 'var(--primary-light)', borderBottom: '1px solid var(--border)', padding: '48px 16px' }}>
-          <div className="container" style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: 13, color: 'var(--primary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>La marketplace du Katanga</p>
-            <h1 style={{ fontSize: 38, fontWeight: 800, color: 'var(--text)', lineHeight: 1.15, marginBottom: 16 }}>Achète et vends<br />à Lubumbashi</h1>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 16, marginBottom: 32, maxWidth: 460, margin: '0 auto 32px' }}>Des milliers de produits près de chez toi. Vêtements, chaussures, téléphones et bien plus.</p>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a href="/sell" style={{ background: 'var(--primary)', color: 'white', padding: '13px 28px', borderRadius: 24, fontSize: 15, fontWeight: 700 }}>Vendre maintenant</a>
-              <a href="#produits" style={{ background: 'transparent', color: 'var(--primary)', border: '1.5px solid var(--primary)', padding: '13px 28px', borderRadius: 24, fontSize: 15, fontWeight: 600 }}>Explorer les produits</a>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 48, marginTop: 40 }}>
-              {[['500+', 'Vendeurs actifs'], ['2 000+', 'Produits'], ['24h', 'Réponse garantie']].map(([n, l]) => (
-                <div key={l} style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: 28, fontWeight: 800, color: 'var(--primary)' }}>{n}</p>
-                  <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{l}</p>
-                </div>
-              ))}
+        {/* ACCUEIL : vraie photo de Lubumbashi */}
+        <section style={{ position: 'relative', minHeight: 440, display: 'flex', alignItems: 'center', background: '#06262b', overflow: 'hidden' }}>
+          <img src={photo(PHOTO_ACCUEIL.id, 1800)} alt="Une rue de Lubumbashi" fetchPriority="high"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(0,30,36,0.92) 0%, rgba(0,39,48,0.72) 55%, rgba(0,39,48,0.35) 100%)' }} />
+          <div className="container" style={{ position: 'relative', padding: '56px 0', color: 'white' }}>
+            <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.5, color: '#7FD6DD', marginBottom: 14 }}>La marketplace de Lubumbashi</p>
+            <h1 style={{ fontSize: 'clamp(32px, 6vw, 52px)', fontWeight: 800, lineHeight: 1.08, marginBottom: 16, maxWidth: 620 }}>Achète et vends<br />près de chez toi</h1>
+            <p style={{ fontSize: 17, lineHeight: 1.6, maxWidth: 520, color: 'rgba(255,255,255,0.88)', marginBottom: 30 }}>
+              Publie ton article en 2 minutes avec tes photos. Les acheteurs t’écrivent directement sur WhatsApp.
+            </p>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <a href="/sell" style={{ background: 'white', color: 'var(--primary)', padding: '14px 28px', borderRadius: 24, fontSize: 16, fontWeight: 800 }}>Vendre un article</a>
+              <a href="#annonces" style={{ border: '1.5px solid rgba(255,255,255,0.7)', color: 'white', padding: '13px 26px', borderRadius: 24, fontSize: 15, fontWeight: 600 }}>Voir les annonces</a>
             </div>
           </div>
+          <p style={{ position: 'absolute', right: 12, bottom: 8, fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{PHOTO_ACCUEIL.credit}</p>
         </section>
 
-        {/* PROMESSES */}
+        {/* POINTS FORTS */}
         <section style={{ background: 'var(--white)', borderBottom: '1px solid var(--border)' }}>
           <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
             {[
-              { icon: '⚡', titre: 'Réponse en 24h', texte: 'Support disponible tous les jours' },
-              { icon: '✅', titre: 'Vendeurs vérifiés', texte: 'Chaque vendeur est contrôlé' },
-              { icon: '🔒', titre: 'Sécurisé', texte: 'Vos données sont protégées' },
-              { icon: '📍', titre: '100% local', texte: 'Lubumbashi et environs' },
-            ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 20px', borderRight: i < 3 ? '1px solid var(--border)' : 'none' }}>
+              { icon: '🆓', titre: 'Gratuit', texte: 'Compte et annonces sans frais' },
+              { icon: '⏱️', titre: 'Annonce en 2 minutes', texte: 'Photos, prix, c’est en ligne' },
+              { icon: '💬', titre: 'Contact direct', texte: 'Les acheteurs t’écrivent sur WhatsApp' },
+              { icon: '📍', titre: 'Près de chez toi', texte: 'Lubumbashi et environs' },
+            ].map(item => (
+              <div key={item.titre} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 12px' }}>
                 <span style={{ fontSize: 22 }}>{item.icon}</span>
                 <div>
-                  <p style={{ fontSize: 13, fontWeight: 600 }}>{item.titre}</p>
+                  <p style={{ fontSize: 14, fontWeight: 700 }}>{item.titre}</p>
                   <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{item.texte}</p>
                 </div>
               </div>
@@ -110,108 +78,65 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* CATEGORIES */}
-        <section style={{ padding: '36px 16px' }}>
+        {/* CATEGORIES EN PHOTOS */}
+        <section style={{ padding: '36px 0' }}>
           <div className="container">
-            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20 }}>Explorer par catégorie</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 12 }}>
-              {categories.map((cat) => (
-                <a key={cat.slug} href={'/category/' + cat.slug} className="cat-card"
-                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '16px 8px', border: '1px solid var(--border)', borderRadius: 10, background: 'var(--white)', color: 'var(--text)', transition: 'all 0.2s' }}>
-                  <span style={{ fontSize: 28 }}>{cat.icon}</span>
-                  <span style={{ fontSize: 13, fontWeight: 500, textAlign: 'center' }}>{cat.label}</span>
+            <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 18 }}>Explorer par catégorie</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12 }}>
+              {CATEGORIES.map(cat => (
+                <a key={cat.slug} href={'/category/' + cat.slug} className="cat-photo"
+                  style={{ position: 'relative', display: 'block', height: 130, borderRadius: 12, overflow: 'hidden', background: '#0b2a30' }}>
+                  <img src={photo(cat.photo, 400, 300)} alt={cat.label} loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <span style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.7) 100%)' }} />
+                  <span style={{ position: 'absolute', left: 12, bottom: 10, color: 'white', fontWeight: 700, fontSize: 16 }}>{cat.label}</span>
                 </a>
               ))}
             </div>
           </div>
         </section>
 
-        {/* PRODUITS REELS */}
-        <section id="produits" style={{ padding: '0 16px 44px' }}>
+        {/* ANNONCES REELLES */}
+        <section id="annonces" style={{ padding: '0 0 44px' }}>
           <div className="container">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700 }}>
-                {produits.length > 0 ? 'Nouveaux articles' : 'Soyez le premier à vendre !'}
-              </h2>
-              {produits.length > 0 && (
-                <a href="/search" style={{ fontSize: 14, color: 'var(--primary)', fontWeight: 600 }}>Voir tout →</a>
-              )}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18, gap: 12 }}>
+              <h2 style={{ fontSize: 22, fontWeight: 800 }}>Dernières annonces</h2>
+              {produits.length > 0 && <a href="/search" style={{ fontSize: 14, color: 'var(--primary)', fontWeight: 600, whiteSpace: 'nowrap' }}>Tout voir →</a>}
             </div>
 
             {produits.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '48px 24px', border: '2px dashed var(--border)', borderRadius: 16 }}>
-                <p style={{ fontSize: 48, marginBottom: 16 }}>🛍️</p>
-                <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>Aucune annonce pour le moment</p>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: 24 }}>Soyez le premier à publier une annonce sur DEALER !</p>
-                <a href="/sell" style={{ background: 'var(--primary)', color: 'white', padding: '13px 28px', borderRadius: 24, fontSize: 15, fontWeight: 700 }}>Publier une annonce</a>
+              <div className="card" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', overflow: 'hidden' }}>
+                <img src={photo(PHOTOS_ETAPES.photographier, 800, 500)} alt="Une personne photographie un article avec son téléphone" style={{ width: '100%', height: '100%', minHeight: 200, objectFit: 'cover' }} />
+                <div style={{ padding: 28, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <p style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Les premières annonces arrivent</p>
+                  <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 20 }}>Tu as un article à vendre ? Prends-le en photo et publie-le : il apparaîtra ici tout de suite.</p>
+                  <a href="/sell" style={{ alignSelf: 'flex-start', background: 'var(--primary)', color: 'white', padding: '13px 26px', borderRadius: 24, fontSize: 15, fontWeight: 700 }}>Publier une annonce</a>
+                </div>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 16 }}>
-                {produits.map((p: any) => (
-                  <a key={p.id} href={'/product/' + p.id}
-                    className="product-card"
-                    style={{ display: 'block', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden', background: 'var(--white)', color: 'var(--text)' }}>
-                    <div style={{ background: 'var(--surface)', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {p.images && p.images.length > 0 ? (
-                        <img src={p.images[0]} alt={p.titre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <span style={{ fontSize: 52 }}>{iconeParCategorie[p.categorie] || '📦'}</span>
-                      )}
-                    </div>
-                    <div style={{ padding: '10px 10px 12px' }}>
-                      <span style={{ fontSize: 11, background: 'var(--primary-light)', color: 'var(--primary)', padding: '2px 8px', borderRadius: 6, fontWeight: 600 }}>{p.categorie}</span>
-                      <p style={{ fontSize: 14, fontWeight: 500, marginTop: 6, marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.titre}</p>
-                      {p.marque && <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{p.marque}</p>}
-                      <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>{p.prix}$</p>
-                      <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>📍 {p.ville}</p>
-                    </div>
-                  </a>
-                ))}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 16 }}>
+                {produits.map(p => <CarteProduit key={p.id} p={p} />)}
               </div>
             )}
           </div>
         </section>
 
-        {/* ETUDE DE CAS */}
-        <section style={{ background: 'var(--primary-light)', padding: '48px 16px', borderTop: '1px solid var(--border)' }}>
+        {/* COMMENT CA MARCHE */}
+        <section style={{ background: 'var(--primary-light)', padding: '48px 0', borderTop: '1px solid var(--border)' }}>
           <div className="container">
-            <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 24, textAlign: 'center' }}>Comment DEALER aide nos vendeurs</h2>
-            <div className="card" style={{ padding: 32, maxWidth: 700, margin: '0 auto' }}>
-              <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-                <div style={{ width: 64, height: 64, background: 'var(--primary)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, color: 'white', flexShrink: 0 }}>D</div>
-                <div style={{ flex: 1, minWidth: 200 }}>
-                  <h3 style={{ fontSize: 17, fontWeight: 700 }}>David K. — Vendeur de sneakers</h3>
-                  <p style={{ fontSize: 13, color: 'var(--primary)', fontWeight: 500, marginBottom: 12 }}>Lubumbashi, Haut-Katanga</p>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.7, fontStyle: 'italic' }}>"Avant DEALER, je vendais via WhatsApp uniquement. Depuis que j'utilise la plateforme, j'ai vendu 23 paires en 3 mois."</p>
-                  <div style={{ display: 'flex', gap: 28, marginTop: 20 }}>
-                    {[['23', 'Ventes en 3 mois'], ['4.8★', 'Note moyenne'], ['3x', 'Plus de visibilité']].map(([n, l]) => (
-                      <div key={l} style={{ textAlign: 'center' }}>
-                        <p style={{ fontSize: 22, fontWeight: 800, color: 'var(--primary)' }}>{n}</p>
-                        <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{l}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* AVIS */}
-        <section style={{ padding: '48px 16px' }}>
-          <div className="container">
-            <h2 style={{ fontSize: 22, fontWeight: 700, textAlign: 'center', marginBottom: 32 }}>Ce que disent nos utilisateurs</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 }}>
-              {avis.map((a, i) => (
-                <div key={i} className="card" style={{ padding: 24 }}>
-                  <p style={{ color: '#F59E0B', fontSize: 16, marginBottom: 14 }}>{'★'.repeat(a.note)}</p>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.7, fontStyle: 'italic', marginBottom: 20 }}>"{a.texte}"</p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 36, height: 36, background: 'var(--primary-light)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontWeight: 700, fontSize: 14 }}>{a.avatar}</div>
-                    <div>
-                      <p style={{ fontSize: 14, fontWeight: 600 }}>{a.nom}</p>
-                      <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{a.date}</p>
-                    </div>
+            <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6, textAlign: 'center' }}>Comment ça marche</h2>
+            <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: 28 }}>Vendre un article en trois étapes</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+              {[
+                { n: '1', titre: 'Prends tes photos', texte: 'Photographie ton article à la lumière du jour, sous plusieurs angles.', img: PHOTOS_ETAPES.photographier, alt: 'Photo d’un article prise avec un téléphone' },
+                { n: '2', titre: 'Publie ton annonce', texte: 'Ajoute un titre, le prix et ton numéro WhatsApp. C’est en ligne immédiatement.', img: PHOTOS_ETAPES.publier, alt: 'Une femme publie une annonce sur son téléphone' },
+                { n: '3', titre: 'Vends près de chez toi', texte: 'Les acheteurs t’écrivent sur WhatsApp. Vous vous retrouvez pour l’échange.', img: PHOTOS_ETAPES.vendre, alt: 'Un marché animé avec des vendeurs et des acheteurs' },
+              ].map(e => (
+                <div key={e.n} className="card" style={{ overflow: 'hidden' }}>
+                  <img src={photo(e.img, 700, 420)} alt={e.alt} loading="lazy" style={{ width: '100%', height: 180, objectFit: 'cover', display: 'block' }} />
+                  <div style={{ padding: 20 }}>
+                    <p style={{ fontSize: 13, fontWeight: 800, color: 'var(--primary)', marginBottom: 4 }}>Étape {e.n}</p>
+                    <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>{e.titre}</h3>
+                    <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{e.texte}</p>
                   </div>
                 </div>
               ))}
@@ -222,11 +147,11 @@ export default async function Home() {
         {/* FAQ */}
         <section style={{ background: 'var(--surface)', padding: '48px 16px', borderTop: '1px solid var(--border)' }}>
           <div className="container" style={{ maxWidth: 720 }}>
-            <h2 style={{ fontSize: 22, fontWeight: 700, textAlign: 'center', marginBottom: 32 }}>Questions fréquentes</h2>
+            <h2 style={{ fontSize: 22, fontWeight: 700, textAlign: 'center', marginBottom: 28 }}>Questions fréquentes</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {faqItems.map((item, i) => (
-                <details key={i} className="card" style={{ overflow: 'hidden' }}>
-                  <summary style={{ padding: '16px 20px', cursor: 'pointer', fontWeight: 600, fontSize: 15, display: 'flex', justifyContent: 'space-between', alignItems: 'center', userSelect: 'none' }}>
+              {faqItems.map(item => (
+                <details key={item.q} className="card" style={{ overflow: 'hidden' }}>
+                  <summary style={{ padding: '16px 20px', cursor: 'pointer', fontWeight: 600, fontSize: 15, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, userSelect: 'none' }}>
                     {item.q}
                     <span style={{ color: 'var(--primary)', fontSize: 20, flexShrink: 0 }}>+</span>
                   </summary>
@@ -243,10 +168,10 @@ export default async function Home() {
         {/* CTA */}
         <section style={{ background: 'var(--primary)', padding: '56px 16px', textAlign: 'center' }}>
           <div className="container">
-            <h2 style={{ fontSize: 30, fontWeight: 800, color: 'white', marginBottom: 12 }}>Prêt à commencer ?</h2>
-            <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: 32, fontSize: 16 }}>Rejoins des centaines de vendeurs à Lubumbashi.</p>
+            <h2 style={{ fontSize: 30, fontWeight: 800, color: 'white', marginBottom: 12 }}>Tu as quelque chose à vendre ?</h2>
+            <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: 30, fontSize: 16 }}>Crée ton compte gratuit et publie ta première annonce aujourd’hui.</p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a href="/auth" style={{ background: 'white', color: 'var(--primary)', fontWeight: 700, padding: '14px 32px', borderRadius: 24, fontSize: 15 }}>Créer mon compte gratuitement</a>
+              <a href="/auth?mode=inscription&next=/sell" style={{ background: 'white', color: 'var(--primary)', fontWeight: 700, padding: '14px 32px', borderRadius: 24, fontSize: 15 }}>Créer mon compte gratuit</a>
               <a href="/faq" style={{ border: '2px solid rgba(255,255,255,0.5)', color: 'white', fontWeight: 600, padding: '14px 32px', borderRadius: 24, fontSize: 15 }}>En savoir plus</a>
             </div>
           </div>
@@ -258,12 +183,12 @@ export default async function Home() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 32, marginBottom: 40 }}>
               <div>
                 <p style={{ color: 'white', fontSize: 20, fontWeight: 800, marginBottom: 12 }}>DEALER</p>
-                <p style={{ fontSize: 13, lineHeight: 1.7 }}>La marketplace de référence à Lubumbashi.</p>
+                <p style={{ fontSize: 13, lineHeight: 1.7 }}>Acheter et vendre entre particuliers à Lubumbashi.</p>
               </div>
               <div>
                 <p style={{ color: 'white', fontWeight: 600, fontSize: 14, marginBottom: 12 }}>Navigation</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {[['/', 'Accueil'], ['/sell', 'Vendre'], ['/auth', 'Mon compte']].map(([h, l]) => (
+                  {[['/', 'Accueil'], ['/sell', 'Vendre'], ['/search', 'Rechercher'], ['/account', 'Mon compte']].map(([h, l]) => (
                     <a key={h} href={h} style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>{l}</a>
                   ))}
                 </div>
@@ -292,7 +217,6 @@ export default async function Home() {
             </div>
           </div>
         </footer>
-
       </main>
       <BottomNav />
     </>

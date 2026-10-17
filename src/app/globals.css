@@ -56,3 +56,7 @@ details summary::-webkit-details-marker { display: none; }
 @media (min-width: 769px) {
   .mobile-only { display: none !important; }
 }
+
+/* Tuiles de catégories en photo */
+.cat-photo img { transition: transform 0.3s; }
+.cat-photo:hover img { transform: scale(1.05); }

@@ -1,8 +1,10 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
+import { numeroWhatsApp } from '@/lib/catalogue'
 
 const icones: Record<string, string> = {
   chaussures: '👟', vetements: '👕', telephones: '📱',
@@ -10,27 +12,29 @@ const icones: Record<string, string> = {
   maison: '🏠', sport: '⚽', autre: '📦',
 }
 
-export default function ProfilPublic({ params }: { params: { id: string } }) {
+export default function ProfilPublic() {
+  const params = useParams<{ id: string }>()
   const [profil, setProfil] = useState<any>(null)
   const [annonces, setAnnonces] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!params?.id) return
     async function load() {
-      const { data: p } = await supabase.from('profiles').select('*').eq('id', params.id).single()
+      const { data: p } = await supabase.from('profiles').select('id, prenom, nom, telephone, ville, bio, note, nb_ventes, created_at').eq('id', params.id).maybeSingle()
       setProfil(p)
       const { data: a } = await supabase.from('produits').select('*').eq('vendeur_id', params.id).eq('statut', 'actif').order('created_at', { ascending: false })
       setAnnonces(a || [])
       setLoading(false)
     }
     load()
-  }, [params.id])
+  }, [params?.id])
 
   if (loading) return <><Header /><main style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}><p style={{ color: 'var(--text-secondary)' }}>Chargement...</p></main></>
 
   if (!profil) return <><Header /><main style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', flexDirection: 'column', gap: 16 }}><p style={{ fontSize: 17, fontWeight: 700 }}>Profil introuvable</p><a href="/" style={{ color: 'var(--primary)' }}>Retour à l'accueil</a></main></>
 
-  const nom = (profil.prenom || '') + ' ' + (profil.nom || '')
+  const nom = (profil.prenom || 'Vendeur') + (profil.nom ? ' ' + String(profil.nom)[0].toUpperCase() + '.' : '')
   const initiale = nom.trim()[0]?.toUpperCase() || '?'
 
   return (
@@ -58,7 +62,7 @@ export default function ProfilPublic({ params }: { params: { id: string } }) {
                 </div>
                 {profil.bio && <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 14, maxWidth: 500, lineHeight: 1.7 }}>{profil.bio}</p>}
               </div>
-              <a href={'/messages/' + params.id} style={{ background: 'var(--primary)', color: 'white', padding: '12px 20px', borderRadius: 8, fontSize: 14, fontWeight: 700, alignSelf: 'flex-start' }}>💬 Contacter</a>
+              {numeroWhatsApp(profil.telephone) && <a href={'https://wa.me/' + numeroWhatsApp(profil.telephone)} target="_blank" rel="noopener noreferrer" style={{ background: '#1FA855', color: 'white', padding: '12px 20px', borderRadius: 8, fontSize: 14, fontWeight: 700, alignSelf: 'flex-start' }}>Contacter sur WhatsApp</a>}
             </div>
           </div>
 

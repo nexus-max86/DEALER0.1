@@ -2,6 +2,14 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
+  async redirects() {
+    return [
+      // anciennes pages de démonstration
+      { source: '/vendre', destination: '/sell', permanent: false },
+      { source: '/produit/:id', destination: '/product/:id', permanent: false },
+      { source: '/boutique/:id', destination: '/profile/:id', permanent: false },
+    ]
+  },
   async headers() {
     return [{ source: '/(.*)', headers: [
       { key: 'X-Content-Type-Options', value: 'nosniff' },

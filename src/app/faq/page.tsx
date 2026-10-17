@@ -7,13 +7,13 @@ export const metadata: Metadata = {
 }
 
 const faqs = [
-  { q: 'Comment créer un compte ?', r: 'Cliquez sur Connexion puis Inscription. Nom, email, mot de passe. Gratuit et instantané.' },
-  { q: 'Comment publier une annonce ?', r: 'Après connexion, cliquez sur Vendre. 4 étapes : photos, catégorie, détails, prix.' },
+  { q: 'Comment créer un compte ?', r: 'Touchez « Mon compte » puis « Je crée mon compte ». Prénom, email et mot de passe (6 caractères minimum) suffisent. C’est gratuit.' },
+  { q: 'Comment publier une annonce ?', r: 'Après connexion, touchez « Vendre ». 4 étapes : photos, catégorie, détails, prix et numéro WhatsApp. L’annonce est en ligne immédiatement.' },
   { q: 'Est-ce que DEALER est gratuit ?', r: 'Oui, publier est 100% gratuit. Des options premium arrivent bientôt.' },
-  { q: 'Comment contacter un vendeur ?', r: 'Sur la page produit, cliquez Contacter ou Faire une offre.' },
+  { q: 'Comment contacter un vendeur ?', r: 'Sur la page de l’annonce, touchez « Contacter sur WhatsApp » ou « Appeler le vendeur ».' },
   { q: 'DEALER gère-t-il la livraison ?', r: 'DEALER met en relation. La livraison est organisée entre acheteur et vendeur.' },
-  { q: 'Comment signaler une annonce ?', r: 'Bouton Signaler sur chaque annonce. Notre équipe traite sous 24h.' },
-  { q: 'Mes données sont-elles sécurisées ?', r: 'Oui. Chiffrement complet, pas de vente de données. Voir politique de confidentialité.' },
+  { q: 'Comment signaler une annonce ?', r: 'Écrivez à support@dealer-luba.com en indiquant le lien de l’annonce.' },
+  { q: 'Mes données sont-elles sécurisées ?', r: 'Votre mot de passe est protégé et vos données ne sont pas vendues. Votre numéro WhatsApp est affiché sur vos annonces pour que les acheteurs vous contactent. Voir la politique de confidentialité.' },
   { q: 'Comment supprimer mon compte ?', r: 'Contactez support@dealer-luba.com. Traitement sous 72h.' },
 ]
 

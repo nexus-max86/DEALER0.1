@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /admin/
-Sitemap: https://dealer-luba.vercel.app/sitemap.xml
+Sitemap: https://dealer-0-1.vercel.app/sitemap.xml
