@@ -28,7 +28,7 @@ export default function AdminLogin() {
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <p style={{ fontSize: 40, marginBottom: 8 }}>🔐</p>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: '#0F172A' }}>Admin DEALER</h1>
-          <p style={{ fontSize: 13, color: '#64748B', marginTop: 4 }}>Accès réservé à Nicolas et David</p>
+          <p style={{ fontSize: 13, color: '#64748B', marginTop: 4 }}>Accès réservé à l’administrateur</p>
         </div>
         {erreur && <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '12px 16px', borderRadius: 8, marginBottom: 16, fontSize: 14 }}>{erreur}</div>}
         <form onSubmit={login}>
