@@ -68,3 +68,39 @@ export function datePublication(iso: string | null | undefined) {
   if (jours < 7) return 'il y a ' + jours + ' jour' + (jours > 1 ? 's' : '')
   return 'le ' + d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })
 }
+
+// Disponibilité d'une annonce. En base : 'actif' = disponible.
+export type Statut = 'actif' | 'reserve' | 'vendu'
+export const STATUTS: Record<Statut, { label: string; couleur: string; fond: string; aide: string }> = {
+  actif: { label: 'Disponible', couleur: '#166534', fond: '#DCFCE7', aide: 'Visible et achetable' },
+  reserve: { label: 'Réservé', couleur: '#8A4513', fond: '#F8E6D6', aide: 'Un acheteur l’a réservé' },
+  vendu: { label: 'Vendu', couleur: '#475569', fond: '#E8ECEF', aide: 'Plus disponible' },
+}
+
+export function statutDe(valeur: string | null | undefined): Statut {
+  return valeur === 'reserve' || valeur === 'vendu' ? valeur : 'actif'
+}
+
+// « Dernier article », « 3 en stock »… seulement pour un article disponible
+export function libelleStock(quantite: number | null | undefined, statut: string | null | undefined): string | null {
+  if (statutDe(statut) !== 'actif') return null
+  const q = Number(quantite ?? 1)
+  if (q <= 1) return 'Dernier article'
+  return q + ' en stock'
+}
+
+export function nomCourt(p: { prenom?: string | null; nom?: string | null } | null | undefined) {
+  if (!p) return 'Membre'
+  return (p.prenom || 'Membre') + (p.nom ? ' ' + String(p.nom)[0].toUpperCase() + '.' : '')
+}
+
+export function heureMessage(iso: string | null | undefined) {
+  if (!iso) return ''
+  const d = new Date(iso.endsWith('Z') || iso.includes('+') ? iso : iso + 'Z')
+  const maintenant = new Date()
+  const memeJour = d.toDateString() === maintenant.toDateString()
+  if (memeJour) return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  const hier = new Date(maintenant.getTime() - 86400000)
+  if (d.toDateString() === hier.toDateString()) return 'hier'
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+}

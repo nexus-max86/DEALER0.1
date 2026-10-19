@@ -3,29 +3,31 @@ import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
 import CarteProduit, { type ProduitResume } from '@/components/CarteProduit'
 import { clientServeur } from '@/lib/serveur'
+import Icone from '@/components/Icone'
 import { CATEGORIES, PHOTO_ACCUEIL, PHOTOS_ETAPES, photo } from '@/lib/catalogue'
 
 export const metadata: Metadata = {
   title: 'Accueil · Achète et vends à Lubumbashi',
-  description: 'Publie ton article en 2 minutes avec tes photos. Les acheteurs de Lubumbashi te contactent directement sur WhatsApp.',
+  description: 'Publie ton article en 2 minutes avec tes photos. Les acheteurs de Lubumbashi t’écrivent sur DEALER.',
 }
 
 // Les nouvelles annonces apparaissent immédiatement
 export const dynamic = 'force-dynamic'
 
 const faqItems = [
-  { q: 'Comment vendre sur DEALER ?', r: 'Crée ton compte gratuit, touche « Vendre », ajoute les photos de ton article, son prix et ton numéro WhatsApp, puis publie. Ça prend 2 minutes.' },
+  { q: 'Comment vendre sur DEALER ?', r: 'Crée ton compte gratuit, touche « Vendre », ajoute les photos de ton article, son prix et la quantité disponible, puis publie. Ça prend 2 minutes.' },
   { q: 'Est-ce que DEALER est gratuit ?', r: 'Oui. Créer un compte et publier une annonce sont gratuits.' },
-  { q: 'Comment contacter un vendeur ?', r: 'Ouvre l’annonce et touche « Contacter sur WhatsApp » : un message est préparé avec le lien de l’annonce.' },
+  { q: 'Comment contacter un vendeur ?', r: 'Ouvre l’annonce, écris ton message et touche « Envoyer le message ». Le vendeur reçoit une notification et te répond dans ta messagerie DEALER. Si le vendeur a ajouté son numéro, WhatsApp est aussi proposé.' },
+  { q: 'Comment savoir si un article est encore disponible ?', r: 'Chaque annonce indique « Disponible », « Réservé » ou « Vendu ». Ajoute l’article à tes favoris : tu reçois une alerte dès que sa disponibilité change.' },
   { q: 'Comment acheter sans risque ?', r: 'Rencontre le vendeur dans un lieu public, vérifie l’article avant de payer et ne paie jamais à l’avance.' },
-  { q: 'Qui voit mon numéro ?', r: 'Ton numéro WhatsApp est affiché sur tes annonces pour que les acheteurs puissent t’écrire. Tu peux le changer à tout moment dans « Mon compte ».' },
+  { q: 'Qui voit mon numéro ?', r: 'Ton numéro WhatsApp est facultatif. Si tu l’ajoutes, il est proposé sur tes annonces aux acheteurs qui préfèrent WhatsApp. Tu peux le retirer à tout moment dans « Mon compte ».' },
 ]
 
 async function getProduits(): Promise<ProduitResume[]> {
   const { data } = await clientServeur()
     .from('produits')
-    .select('id, titre, prix, categorie, marque, ville, images, statut')
-    .eq('statut', 'actif')
+    .select('id, titre, prix, categorie, marque, ville, images, statut, quantite')
+    .in('statut', ['actif', 'reserve'])
     .order('created_at', { ascending: false })
     .limit(12)
   return (data as ProduitResume[]) || []
@@ -45,10 +47,10 @@ export default async function Home() {
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(0,30,36,0.92) 0%, rgba(0,39,48,0.72) 55%, rgba(0,39,48,0.35) 100%)' }} />
           <div className="container" style={{ position: 'relative', padding: '56px 0', color: 'white' }}>
-            <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.5, color: '#7FD6DD', marginBottom: 14 }}>La marketplace de Lubumbashi</p>
+            <p style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.9)', background: 'rgba(255,255,255,0.12)', padding: '6px 12px', borderRadius: 999, marginBottom: 16 }}><Icone nom="lieu" taille={16} /> Lubumbashi, Haut-Katanga</p>
             <h1 style={{ fontSize: 'clamp(32px, 6vw, 52px)', fontWeight: 800, lineHeight: 1.08, marginBottom: 16, maxWidth: 620 }}>Achète et vends<br />près de chez toi</h1>
             <p style={{ fontSize: 17, lineHeight: 1.6, maxWidth: 520, color: 'rgba(255,255,255,0.88)', marginBottom: 30 }}>
-              Publie ton article en 2 minutes avec tes photos. Les acheteurs t’écrivent directement sur WhatsApp.
+              Publie ton article en 2 minutes avec tes photos. Les acheteurs t’écrivent sur DEALER et tu es prévenu à chaque message.
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <a href="/sell" style={{ background: 'white', color: 'var(--primary)', padding: '14px 28px', borderRadius: 24, fontSize: 16, fontWeight: 800 }}>Vendre un article</a>
@@ -62,13 +64,13 @@ export default async function Home() {
         <section style={{ background: 'var(--white)', borderBottom: '1px solid var(--border)' }}>
           <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
             {[
-              { icon: '🎁', titre: 'Gratuit', texte: 'Compte et annonces sans frais' },
-              { icon: '⏱️', titre: 'Annonce en 2 minutes', texte: 'Photos, prix, c’est en ligne' },
-              { icon: '💬', titre: 'Contact direct', texte: 'Les acheteurs t’écrivent sur WhatsApp' },
-              { icon: '📍', titre: 'Près de chez toi', texte: 'Lubumbashi et environs' },
+              { icon: 'cadeau', titre: 'Gratuit', texte: 'Compte et annonces sans frais' },
+              { icon: 'horloge', titre: 'Annonce en 2 minutes', texte: 'Photos, prix, c’est en ligne' },
+              { icon: 'message', titre: 'Messagerie intégrée', texte: 'Discute avec le vendeur sur DEALER' },
+              { icon: 'cloche', titre: 'Alertes de disponibilité', texte: 'Sache si l’article est encore là' },
             ].map(item => (
               <div key={item.titre} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 12px' }}>
-                <span style={{ fontSize: 22 }}>{item.icon}</span>
+                <span style={{ width: 38, height: 38, borderRadius: 10, background: 'var(--primary-light)', color: 'var(--primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Icone nom={item.icon} /></span>
                 <div>
                   <p style={{ fontSize: 14, fontWeight: 700 }}>{item.titre}</p>
                   <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{item.texte}</p>
@@ -100,7 +102,7 @@ export default async function Home() {
           <div className="container">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18, gap: 12 }}>
               <h2 style={{ fontSize: 22, fontWeight: 800 }}>Dernières annonces</h2>
-              {produits.length > 0 && <a href="/search" style={{ fontSize: 14, color: 'var(--primary)', fontWeight: 600, whiteSpace: 'nowrap' }}>Tout voir →</a>}
+              {produits.length > 0 && <a href="/search" style={{ fontSize: 14, color: 'var(--primary)', fontWeight: 600, whiteSpace: 'nowrap' }}>Tout voir</a>}
             </div>
 
             {produits.length === 0 ? (
@@ -128,8 +130,8 @@ export default async function Home() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
               {[
                 { n: '1', titre: 'Prends tes photos', texte: 'Photographie ton article à la lumière du jour, sous plusieurs angles.', img: PHOTOS_ETAPES.photographier, alt: 'Photo d’un article prise avec un téléphone' },
-                { n: '2', titre: 'Publie ton annonce', texte: 'Ajoute un titre, le prix et ton numéro WhatsApp. C’est en ligne immédiatement.', img: PHOTOS_ETAPES.publier, alt: 'Une femme publie une annonce sur son téléphone' },
-                { n: '3', titre: 'Vends près de chez toi', texte: 'Les acheteurs t’écrivent sur WhatsApp. Vous vous retrouvez pour l’échange.', img: PHOTOS_ETAPES.vendre, alt: 'Un marché animé avec des vendeurs et des acheteurs' },
+                { n: '2', titre: 'Publie ton annonce', texte: 'Ajoute un titre, le prix et la quantité. L’annonce est en ligne immédiatement.', img: PHOTOS_ETAPES.publier, alt: 'Une femme publie une annonce sur son téléphone' },
+                { n: '3', titre: 'Vends près de chez toi', texte: 'Les acheteurs t’écrivent sur DEALER. Tu indiques quand l’article est réservé ou vendu.', img: PHOTOS_ETAPES.vendre, alt: 'Un marché animé avec des vendeurs et des acheteurs' },
               ].map(e => (
                 <div key={e.n} className="card" style={{ overflow: 'hidden' }}>
                   <img src={photo(e.img, 700, 420)} alt={e.alt} loading="lazy" style={{ width: '100%', height: 180, objectFit: 'cover', display: 'block' }} />
@@ -160,7 +162,7 @@ export default async function Home() {
               ))}
             </div>
             <div style={{ textAlign: 'center', marginTop: 24 }}>
-              <a href="/faq" style={{ color: 'var(--primary)', fontWeight: 600, fontSize: 14 }}>Voir toutes les questions →</a>
+              <a href="/faq" style={{ color: 'var(--primary)', fontWeight: 600, fontSize: 14 }}>Voir toutes les questions</a>
             </div>
           </div>
         </section>

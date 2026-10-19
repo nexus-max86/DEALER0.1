@@ -20,7 +20,7 @@ export default function Categorie() {
     if (!slug) return
     async function load() {
       setLoading(true)
-      let q = supabase.from('produits').select('id, titre, prix, categorie, marque, ville, images, statut').eq('statut', 'actif').eq('categorie', slug)
+      let q = supabase.from('produits').select('id, titre, prix, categorie, marque, ville, images, statut, quantite').in('statut', ['actif', 'reserve']).eq('categorie', slug)
       if (tri === 'recent') q = q.order('created_at', { ascending: false })
       else if (tri === 'prix_asc') q = q.order('prix', { ascending: true })
       else if (tri === 'prix_desc') q = q.order('prix', { ascending: false })
@@ -41,7 +41,7 @@ export default function Categorie() {
         <section style={{ position: 'relative', height: 170, background: '#0b2a30', overflow: 'hidden' }}>
           {c && <img src={photo(c.photo, 1600, 400)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.55 }} />}
           <div className="container" style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', paddingBottom: 20, color: 'white' }}>
-            <a href="/" style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', marginBottom: 8 }}>← Accueil</a>
+            <a href="/" style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', marginBottom: 8 }}>Accueil</a>
             <h1 style={{ fontSize: 28, fontWeight: 800 }}>{label}</h1>
             {!loading && <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)' }}>{produits.length} annonce{produits.length > 1 ? 's' : ''}</p>}
           </div>

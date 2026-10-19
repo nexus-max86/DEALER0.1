@@ -8,12 +8,13 @@ export const metadata: Metadata = {
 
 const faqs = [
   { q: 'Comment créer un compte ?', r: 'Touchez « Mon compte » puis « Je crée mon compte ». Prénom, email et mot de passe (6 caractères minimum) suffisent. C’est gratuit.' },
-  { q: 'Comment publier une annonce ?', r: 'Après connexion, touchez « Vendre ». 4 étapes : photos, catégorie, détails, prix et numéro WhatsApp. L’annonce est en ligne immédiatement.' },
+  { q: 'Comment publier une annonce ?', r: 'Après connexion, touchez « Vendre ». 4 étapes : photos, catégorie, détails, puis prix et quantité. L’annonce est en ligne immédiatement.' },
   { q: 'Est-ce que DEALER est gratuit ?', r: 'Oui, publier est 100% gratuit. Des options premium arrivent bientôt.' },
-  { q: 'Comment contacter un vendeur ?', r: 'Sur la page de l’annonce, touchez « Contacter sur WhatsApp » ou « Appeler le vendeur ».' },
+  { q: 'Comment contacter un vendeur ?', r: 'Sur la page de l’annonce, écrivez votre message et touchez « Envoyer le message ». Le vendeur reçoit une notification et vous répond dans « Messages ». WhatsApp est proposé en option si le vendeur a ajouté son numéro.' },
+  { q: 'Comment savoir si un article est toujours disponible ?', r: 'Chaque annonce affiche « Disponible », « Réservé » ou « Vendu », et le stock restant. Ajoutez l’article à vos favoris pour recevoir une alerte quand sa disponibilité change.' },
   { q: 'DEALER gère-t-il la livraison ?', r: 'DEALER met en relation. La livraison est organisée entre acheteur et vendeur.' },
   { q: 'Comment signaler une annonce ?', r: 'Écrivez à support@dealer-luba.com en indiquant le lien de l’annonce.' },
-  { q: 'Mes données sont-elles sécurisées ?', r: 'Votre mot de passe est protégé et vos données ne sont pas vendues. Votre numéro WhatsApp est affiché sur vos annonces pour que les acheteurs vous contactent. Voir la politique de confidentialité.' },
+  { q: 'Mes données sont-elles sécurisées ?', r: 'Votre mot de passe est protégé et vos données ne sont pas vendues. Votre numéro WhatsApp est facultatif ; si vous l’ajoutez, il est proposé sur vos annonces. Voir la politique de confidentialité.' },
   { q: 'Comment supprimer mon compte ?', r: 'Contactez support@dealer-luba.com. Traitement sous 72h.' },
 ]
 

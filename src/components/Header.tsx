@@ -1,9 +1,20 @@
 'use client'
 import { useState } from 'react'
 import NotifBell from './NotifBell'
+import Icone from './Icone'
+import Avatar from './Avatar'
+import { useUtilisateur, useNonLus, useProfilCourt } from '@/lib/useCompte'
+
+function Pastille({ n }: { n: number }) {
+  if (!n) return null
+  return <span className="pastille">{n > 9 ? '9+' : n}</span>
+}
 
 export default function Header() {
   const [query, setQuery] = useState('')
+  const { user } = useUtilisateur()
+  const { messages } = useNonLus(user?.id)
+  const profil = useProfilCourt(user?.id)
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
@@ -11,24 +22,34 @@ export default function Header() {
   }
 
   return (
-    <header style={{ background: 'var(--white)', borderBottom: '1px solid var(--border)', position: 'sticky', top: 0, zIndex: 100 }}>
-      <div className="container" style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 0' }}>
-        <a href="/" style={{ fontSize: 22, fontWeight: 800, color: 'var(--primary)', whiteSpace: 'nowrap' }}>DEALER</a>
-        <form onSubmit={handleSearch} style={{ flex: 1, maxWidth: 520, position: 'relative' }}>
-          <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none' }}>🔍</span>
-          <input
-            type="search"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            placeholder="Rechercher sur DEALER"
-            style={{ width: '100%', paddingLeft: 42, paddingRight: 16, paddingTop: 10, paddingBottom: 10, borderRadius: 24, background: 'var(--surface)', border: '1.5px solid var(--border)', fontSize: 14, fontFamily: 'inherit', color: 'var(--text)', outline: 'none' }}
-          />
+    <header className="entete">
+      <div className="container entete-ligne">
+        <a href="/" className="logo" aria-label="DEALER, accueil">
+          <span className="logo-marque" aria-hidden="true" />
+          DEALER
+        </a>
+        <form onSubmit={handleSearch} role="search" className="entete-recherche">
+          <Icone nom="recherche" taille={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+          <input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Rechercher un article, une marque" aria-label="Rechercher" />
         </form>
-        <nav className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <a href="/favorites" className="header-link" style={{ padding: '8px 10px', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 500, transition: 'color 0.2s' }}>🤍 Favoris</a>
-          <NotifBell />
-          <a href="/account" className="header-link" style={{ padding: '8px 10px', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 500, transition: 'color 0.2s' }}>👤 Mon compte</a>
-          <a href="/sell" className="btn-sell" style={{ background: 'var(--primary)', color: 'white', padding: '9px 18px', borderRadius: 24, fontSize: 14, fontWeight: 700 }}>Vendre</a>
+        <nav className="entete-nav" aria-label="Navigation principale">
+          <a href="/messages" className="entete-lien desktop-only" aria-label={'Messages' + (messages ? ', ' + messages + ' non lus' : '')}>
+            <span style={{ position: 'relative', display: 'inline-flex' }}><Icone nom="message" /><Pastille n={messages} /></span>
+            <span>Messages</span>
+          </a>
+          <a href="/favorites" className="entete-lien desktop-only">
+            <Icone nom="coeur" />
+            <span>Favoris</span>
+          </a>
+          {user && <NotifBell userId={user.id} />}
+          <a href="/account" className="entete-lien desktop-only" aria-label="Mon compte">
+            {user ? <Avatar url={profil?.avatar_url} nom={profil?.prenom || user.email} taille={26} /> : <Icone nom="utilisateur" />}
+            <span>{user ? 'Mon compte' : 'Se connecter'}</span>
+          </a>
+          <a href="/sell" className="bouton bouton-principal desktop-only" style={{ padding: '9px 16px' }}>
+            <Icone nom="plus" taille={18} epaisseur={2.2} />
+            Vendre
+          </a>
         </nav>
       </div>
     </header>

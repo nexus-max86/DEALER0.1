@@ -1,92 +1,76 @@
-'use client'
-import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
-import { numeroWhatsApp } from '@/lib/catalogue'
+import Avatar from '@/components/Avatar'
+import Icone from '@/components/Icone'
+import CarteProduit, { type ProduitResume } from '@/components/CarteProduit'
+import { clientServeur } from '@/lib/serveur'
+import { nomCourt, numeroWhatsApp } from '@/lib/catalogue'
 
-const icones: Record<string, string> = {
-  chaussures: '👟', vetements: '👕', telephones: '📱',
-  beaute: '💄', electronique: '💻', automobile: '🚗',
-  maison: '🏠', sport: '⚽', autre: '📦',
+type Props = { params: Promise<{ id: string }> }
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+async function charger(id: string) {
+  if (!UUID.test(id)) return null
+  const db = clientServeur()
+  const { data: profil } = await db.from('profiles').select('id, prenom, nom, ville, bio, avatar_url, telephone, created_at').eq('id', id).maybeSingle()
+  if (!profil) return null
+  const { data: annonces } = await db.from('produits')
+    .select('id, titre, prix, categorie, marque, ville, images, statut, quantite, vendus')
+    .eq('vendeur_id', id).order('created_at', { ascending: false }).limit(60)
+  return { profil, annonces: (annonces || []) as (ProduitResume & { vendus?: number | null })[] }
 }
 
-export default function ProfilPublic() {
-  const params = useParams<{ id: string }>()
-  const [profil, setProfil] = useState<any>(null)
-  const [annonces, setAnnonces] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
+  const d = await charger(id)
+  if (!d) return { title: 'Profil introuvable' }
+  return { title: nomCourt(d.profil) + ', vendeur à ' + (d.profil.ville || 'Lubumbashi'), description: d.profil.bio || undefined }
+}
 
-  useEffect(() => {
-    if (!params?.id) return
-    async function load() {
-      const { data: p } = await supabase.from('profiles').select('id, prenom, nom, telephone, ville, bio, note, nb_ventes, created_at').eq('id', params.id).maybeSingle()
-      setProfil(p)
-      const { data: a } = await supabase.from('produits').select('*').eq('vendeur_id', params.id).eq('statut', 'actif').order('created_at', { ascending: false })
-      setAnnonces(a || [])
-      setLoading(false)
-    }
-    load()
-  }, [params?.id])
-
-  if (loading) return <><Header /><main style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}><p style={{ color: 'var(--text-secondary)' }}>Chargement...</p></main></>
-
-  if (!profil) return <><Header /><main style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', flexDirection: 'column', gap: 16 }}><p style={{ fontSize: 17, fontWeight: 700 }}>Profil introuvable</p><a href="/" style={{ color: 'var(--primary)' }}>Retour à l'accueil</a></main></>
-
-  const nom = (profil.prenom || 'Vendeur') + (profil.nom ? ' ' + String(profil.nom)[0].toUpperCase() + '.' : '')
-  const initiale = nom.trim()[0]?.toUpperCase() || '?'
+export default async function ProfilPublic({ params }: Props) {
+  const { id } = await params
+  const d = await charger(id)
+  if (!d) notFound()
+  const { profil, annonces } = d
+  const enVente = annonces.filter(a => a.statut === 'actif' || a.statut === 'reserve')
+  const ventes = annonces.reduce((t, a) => t + (a.vendus || 0) + (a.statut === 'vendu' && !a.vendus ? 1 : 0), 0)
+  const numero = numeroWhatsApp(profil.telephone)
+  const depuis = profil.created_at ? new Date(profil.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : null
 
   return (
     <>
       <Header />
-      <main style={{ background: 'var(--surface)', minHeight: '100vh' }}>
-        <div style={{ background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)', height: 140, position: 'relative' }}>
-          <div className="container" style={{ height: '100%', position: 'relative' }}>
-            <div style={{ position: 'absolute', bottom: -36, left: 0, width: 80, height: 80, background: 'var(--white)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 800, color: 'var(--primary)', border: '4px solid var(--white)', boxShadow: '0 4px 16px rgba(0,39,48,0.15)' }}>{initiale}</div>
-          </div>
-        </div>
-        <div className="container" style={{ padding: '48px 0 48px' }}>
-          <div className="card" style={{ padding: 24, marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-              <div>
-                <h1 style={{ fontSize: 22, fontWeight: 800 }}>{nom.trim() || 'Vendeur'}</h1>
-                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>📍 {profil.ville || 'Lubumbashi'} · Membre depuis {new Date(profil.created_at).getFullYear()}</p>
-                <div style={{ display: 'flex', gap: 28, marginTop: 16 }}>
-                  {[[String(annonces.length), 'Annonces'], [String(profil.nb_ventes || 0), 'Ventes'], [String(profil.note || '—'), 'Note']].map(([n, l]) => (
-                    <div key={l} style={{ textAlign: 'center' }}>
-                      <p style={{ fontSize: 22, fontWeight: 800 }}>{n}</p>
-                      <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{l}</p>
-                    </div>
-                  ))}
-                </div>
-                {profil.bio && <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 14, maxWidth: 500, lineHeight: 1.7 }}>{profil.bio}</p>}
+      <main style={{ background: 'var(--surface)', minHeight: '100vh', padding: '24px 16px 96px' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto' }}>
+          <section className="carte" style={{ padding: 24, display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'flex-start', marginBottom: 24 }}>
+            <Avatar url={profil.avatar_url} nom={profil.prenom} taille={96} />
+            <div style={{ flex: 1, minWidth: 220 }}>
+              <h1 style={{ fontSize: 26, fontWeight: 800 }}>{nomCourt(profil)}</h1>
+              <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Icone nom="lieu" taille={16} /> {profil.ville || 'Lubumbashi'}{depuis ? ', membre depuis ' + depuis : ''}
+              </p>
+              <div style={{ display: 'flex', gap: 24, marginTop: 14 }}>
+                <div><p style={{ fontSize: 22, fontWeight: 800 }}>{enVente.length}</p><p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>en vente</p></div>
+                <div><p style={{ fontSize: 22, fontWeight: 800 }}>{ventes}</p><p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>vendu{ventes > 1 ? 's' : ''}</p></div>
               </div>
-              {numeroWhatsApp(profil.telephone) && <a href={'https://wa.me/' + numeroWhatsApp(profil.telephone)} target="_blank" rel="noopener noreferrer" style={{ background: '#1FA855', color: 'white', padding: '12px 20px', borderRadius: 8, fontSize: 14, fontWeight: 700, alignSelf: 'flex-start' }}>Contacter sur WhatsApp</a>}
+              {profil.bio && <p style={{ fontSize: 15, color: 'var(--text)', marginTop: 16, lineHeight: 1.65, maxWidth: 620, whiteSpace: 'pre-line', overflowWrap: 'anywhere' }}>{profil.bio}</p>}
             </div>
-          </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 200 }}>
+              <a href={'/messages/' + profil.id} className="bouton bouton-principal"><Icone nom="message" taille={18} /> Envoyer un message</a>
+              {numero && <a href={'https://wa.me/' + numero} target="_blank" rel="noopener noreferrer" className="bouton bouton-whatsapp"><Icone nom="whatsapp" taille={18} /> WhatsApp</a>}
+            </div>
+          </section>
 
-          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Annonces ({annonces.length})</h2>
-
-          {annonces.length === 0 ? (
-            <div className="card" style={{ padding: 32, textAlign: 'center' }}>
-              <p style={{ color: 'var(--text-secondary)' }}>Ce vendeur n'a pas encore d'annonces actives.</p>
+          <h2 className="titre-section" style={{ fontSize: 19, marginBottom: 14 }}>Ses annonces ({enVente.length})</h2>
+          {enVente.length === 0 ? (
+            <div className="carte" style={{ padding: 32, textAlign: 'center', color: 'var(--text-secondary)' }}>
+              {profil.prenom || 'Ce membre'} n’a pas d’annonce en vente pour le moment.
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 16 }}>
-              {annonces.map((a: any) => (
-                <a key={a.id} href={'/product/' + a.id} className="product-card"
-                  style={{ display: 'block', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden', background: 'var(--white)', color: 'var(--text)' }}>
-                  <div style={{ background: 'var(--surface)', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                    {a.images?.[0] ? <img src={a.images[0]} alt={a.titre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 52 }}>{icones[a.categorie] || '📦'}</span>}
-                  </div>
-                  <div style={{ padding: '10px 10px 12px' }}>
-                    <p style={{ fontSize: 14, fontWeight: 500, marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{a.titre}</p>
-                    <p style={{ fontSize: 16, fontWeight: 700 }}>{a.prix}$</p>
-                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>📍 {a.ville}</p>
-                  </div>
-                </a>
-              ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 16 }}>
+              {enVente.map(a => <CarteProduit key={a.id} p={a} />)}
             </div>
           )}
         </div>
