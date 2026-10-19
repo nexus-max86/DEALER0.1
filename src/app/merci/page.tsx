@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Header from '@/components/Header'
+import Icone from '@/components/Icone'
 import { SITE_URL } from '@/lib/catalogue'
 
 export const metadata: Metadata = {
@@ -18,10 +19,10 @@ export default async function Merci({ searchParams }: { searchParams: Promise<{ 
       <Header />
       <main style={{ background: 'var(--surface)', minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <div style={{ textAlign: 'center', maxWidth: 460 }}>
-          <div style={{ width: 80, height: 80, background: '#DCFCE7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 36 }}>✅</div>
+          <div style={{ width: 80, height: 80, background: '#DCFCE7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: '#166534' }}><Icone nom="verifie" taille={38} epaisseur={2.4} /></div>
           <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>Ton annonce est en ligne !</h1>
           <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 8 }}>Elle est visible dès maintenant par tous les visiteurs de DEALER.</p>
-          <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 28 }}>Les acheteurs intéressés t’écriront sur WhatsApp. Partage-la pour vendre plus vite.</p>
+          <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 28 }}>Les acheteurs intéressés t’écrivent sur DEALER : tu reçois une notification. Partage-la pour vendre plus vite.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {lien && <a href={'/product/' + valide} style={{ background: 'var(--primary)', color: 'white', padding: '14px 24px', borderRadius: 8, fontWeight: 700 }}>Voir mon annonce</a>}
             {lien && <a href={'https://wa.me/?text=' + encodeURIComponent('Regarde mon annonce sur DEALER : ' + lien)} target="_blank" rel="noopener noreferrer" style={{ background: '#1FA855', color: 'white', padding: '14px 24px', borderRadius: 8, fontWeight: 700 }}>Partager sur WhatsApp</a>}

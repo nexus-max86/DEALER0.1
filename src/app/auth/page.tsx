@@ -248,7 +248,7 @@ export default function Auth() {
                 <div>
                   <label htmlFor="tel" style={labelStyle}>Numéro WhatsApp <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(facultatif)</span></label>
                   <input id="tel" type="tel" value={telephone} onChange={e => setTelephone(e.target.value)} placeholder="+243 97 000 0000" autoComplete="tel" inputMode="tel" style={inputStyle} />
-                  <p style={aideStyle}>Les acheteurs te contacteront sur ce numéro quand tu vends.</p>
+                  <p style={aideStyle}>Proposé en option sur tes annonces, en plus de la messagerie DEALER.</p>
                 </div>
                 <div>
                   <label htmlFor="email" style={labelStyle}>Email</label>
@@ -302,7 +302,7 @@ export default function Auth() {
               {[
                 ['1', 'Tu remplis ce formulaire (1 minute).'],
                 ['2', 'Tu publies ton article avec ses photos.'],
-                ['3', 'Les acheteurs te contactent sur WhatsApp.'],
+                ['3', 'Les acheteurs t’écrivent sur DEALER, tu es prévenu.'],
               ].map(([n, t]) => (
                 <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 14, color: 'var(--text-secondary)' }}>
                   <span style={{ width: 26, height: 26, borderRadius: '50%', background: 'var(--primary-light)', color: 'var(--primary)', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{n}</span>
