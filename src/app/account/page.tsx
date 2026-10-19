@@ -52,7 +52,12 @@ export default function Account() {
     load()
   }, [])
 
-  function annoncer(texte: string) { setErreur(''); setInfo(texte); setTimeout(() => setInfo(''), 3500) }
+  const minuterieInfo = useRef<ReturnType<typeof setTimeout> | null>(null)
+  function annoncer(texte: string) {
+    setErreur(''); setInfo(texte)
+    if (minuterieInfo.current) clearTimeout(minuterieInfo.current)
+    minuterieInfo.current = setTimeout(() => setInfo(''), 3500)
+  }
 
   async function sauvegarder(e: React.FormEvent) {
     e.preventDefault()
