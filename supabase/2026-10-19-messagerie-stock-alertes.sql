@@ -206,3 +206,9 @@ create policy "Upload authentifié" on storage.objects for insert to authenticat
 update storage.buckets
   set file_size_limit = 6291456, allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp']
   where id = 'produits';
+
+-- Une annonce supprimée ne doit pas bloquer à cause des messages qui la mentionnent :
+-- les messages restent, sans lien vers l'annonce.
+alter table public.messages
+  drop constraint if exists messages_produit_id_fkey,
+  add constraint messages_produit_id_fkey foreign key (produit_id) references public.produits(id) on delete set null;
