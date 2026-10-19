@@ -1,18 +1,35 @@
+'use client'
+import { usePathname } from 'next/navigation'
+import Icone from './Icone'
+import { useUtilisateur, useNonLus } from '@/lib/useCompte'
+
 export default function BottomNav() {
+  const { user } = useUtilisateur()
+  const { messages } = useNonLus(user?.id)
+  const chemin = usePathname() || ''
+  const liens = [
+    { href: '/', icone: 'accueil', label: 'Accueil' },
+    { href: '/search', icone: 'recherche', label: 'Recherche' },
+    { href: '/sell', icone: 'plus', label: 'Vendre', principal: true },
+    { href: '/messages', icone: 'message', label: 'Messages', badge: messages },
+    { href: '/account', icone: 'utilisateur', label: user ? 'Compte' : 'Connexion' },
+  ]
   return (
-    <nav className="mobile-only" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--white)', borderTop: '1px solid var(--border)', display: 'flex', zIndex: 99 }}>
-      {[
-        { href: '/', icon: '🏠', label: 'Accueil', primary: false },
-        { href: '/search', icon: '🔍', label: 'Recherche', primary: false },
-        { href: '/sell', icon: '➕', label: 'Vendre', primary: true },
-        { href: '/favorites', icon: '🤍', label: 'Favoris', primary: false },
-        { href: '/account', icon: '👤', label: 'Profil', primary: false },
-      ].map((item) => (
-        <a key={item.href} href={item.href} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 4px 8px', gap: 3, color: item.primary ? 'var(--primary)' : 'var(--text-secondary)', fontSize: 10, fontWeight: item.primary ? 700 : 500 }}>
-          <span style={{ fontSize: item.primary ? 24 : 20 }}>{item.icon}</span>
-          {item.label}
-        </a>
-      ))}
+    <nav className="mobile-only barre-bas" aria-label="Navigation">
+      {liens.map(l => {
+        const actif = l.href === '/' ? chemin === '/' : chemin.startsWith(l.href)
+        return (
+          <a key={l.href} href={l.href} className={'barre-bas-lien' + (actif ? ' actif' : '') + (l.principal ? ' principal' : '')} aria-current={actif ? 'page' : undefined}>
+            <span style={{ position: 'relative', display: 'inline-flex' }}>
+              {l.principal
+                ? <span className="barre-bas-vendre"><Icone nom="plus" taille={22} epaisseur={2.4} /></span>
+                : <Icone nom={l.icone} taille={22} />}
+              {l.badge ? <span className="pastille">{l.badge > 9 ? '9+' : l.badge}</span> : null}
+            </span>
+            {l.label}
+          </a>
+        )
+      })}
     </nav>
   )
 }

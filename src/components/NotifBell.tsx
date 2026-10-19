@@ -1,79 +1,80 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
+import { heureMessage } from '@/lib/catalogue'
+import { useNonLus, rafraichirNonLus } from '@/lib/useCompte'
+import Icone from './Icone'
 
-export default function NotifBell() {
-  const [count, setCount] = useState(0)
+type Notif = { id: string; type: string | null; titre: string | null; contenu: string | null; lien: string | null; lu: boolean; created_at: string }
+
+export default function NotifBell({ userId }: { userId: string }) {
+  const { notifications: count } = useNonLus(userId)
   const [open, setOpen] = useState(false)
-  const [notifs, setNotifs] = useState<any[]>([])
+  const [notifs, setNotifs] = useState<Notif[]>([])
+  const boite = useRef<HTMLDivElement>(null)
 
+  async function charger() {
+    const { data } = await supabase.from('notifications').select('id, type, titre, contenu, lien, lu, created_at')
+      .eq('user_id', userId).order('created_at', { ascending: false }).limit(15)
+    setNotifs((data as Notif[]) || [])
+  }
+
+  useEffect(() => { if (open) charger() }, [open, count])
+
+  // Ferme la liste au clic en dehors
   useEffect(() => {
-    async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+    if (!open) return
+    const fermer = (e: MouseEvent) => { if (boite.current && !boite.current.contains(e.target as Node)) setOpen(false) }
+    document.addEventListener('mousedown', fermer)
+    return () => document.removeEventListener('mousedown', fermer)
+  }, [open])
 
-      const { data } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(10)
-
-      setNotifs(data || [])
-      setCount((data || []).filter((n: any) => !n.lu).length)
-    }
-    load()
-
-    const channel = supabase
-      .channel('notifications')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, () => load())
-      .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
-  }, [])
-
-  async function marquerLus() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-    await supabase.from('notifications').update({ lu: true }).eq('user_id', user.id).eq('lu', false)
-    setCount(0)
+  async function toutMarquerLu() {
+    await supabase.from('notifications').update({ lu: true }).eq('user_id', userId).eq('lu', false)
     setNotifs(notifs.map(n => ({ ...n, lu: true })))
+    rafraichirNonLus()
+  }
+
+  async function ouvrir(n: Notif) {
+    if (!n.lu) await supabase.from('notifications').update({ lu: true }).eq('id', n.id)
+    rafraichirNonLus()
+    window.location.href = n.lien || '/'
   }
 
   return (
-    <div style={{ position: 'relative' }}>
-      <button
-        onClick={() => { setOpen(!open); if (!open && count > 0) marquerLus() }}
-        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 10px', position: 'relative', fontSize: 18 }}
-      >
-        🔔
-        {count > 0 && (
-          <span style={{ position: 'absolute', top: 4, right: 4, background: '#DC2626', color: 'white', borderRadius: '50%', width: 18, height: 18, fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {count > 9 ? '9+' : count}
-          </span>
-        )}
+    <div ref={boite} style={{ position: 'relative' }}>
+      <button type="button" onClick={() => setOpen(!open)} className="entete-lien" aria-expanded={open}
+        aria-label={'Notifications' + (count ? ', ' + count + ' non lues' : '')}>
+        <span style={{ position: 'relative', display: 'inline-flex' }}>
+          <Icone nom="cloche" />
+          {count > 0 && <span className="pastille">{count > 9 ? '9+' : count}</span>}
+        </span>
+        <span className="desktop-only">Alertes</span>
       </button>
 
       {open && (
-        <div style={{ position: 'absolute', right: 0, top: '100%', width: 300, background: 'white', border: '1px solid var(--border)', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 200, overflow: 'hidden' }}>
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <p style={{ fontWeight: 700, fontSize: 14 }}>Notifications</p>
+        <div className="menu-deroulant" role="dialog" aria-label="Notifications">
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+            <p style={{ fontWeight: 700, fontSize: 15 }}>Notifications</p>
+            {count > 0 && <button type="button" onClick={toutMarquerLu} className="lien-discret">Tout marquer comme lu</button>}
           </div>
           {notifs.length === 0 ? (
-            <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 14 }}>
-              Aucune notification
-            </div>
+            <p style={{ padding: '28px 16px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.6 }}>
+              Aucune notification. Tu seras prévenu ici des nouveaux messages et des changements de disponibilité de tes favoris.
+            </p>
           ) : (
-            <div style={{ maxHeight: 320, overflowY: 'auto' }}>
-              {notifs.map((n: any) => (
-                <a key={n.id} href={n.lien || '#'}
-                  style={{ display: 'block', padding: '12px 16px', borderBottom: '1px solid var(--border)', background: n.lu ? 'white' : 'var(--primary-light)', color: 'var(--text)', textDecoration: 'none' }}>
-                  <p style={{ fontSize: 13, fontWeight: n.lu ? 400 : 700 }}>{n.titre}</p>
-                  <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{n.contenu}</p>
-                  <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>
-                    {new Date(n.created_at).toLocaleDateString('fr-FR')}
-                  </p>
-                </a>
+            <div style={{ maxHeight: 380, overflowY: 'auto' }}>
+              {notifs.map(n => (
+                <button key={n.id} type="button" onClick={() => ouvrir(n)} className="notif-ligne" style={{ background: n.lu ? 'white' : 'var(--primary-light)' }}>
+                  <span className="notif-icone" style={{ color: n.type === 'message' ? 'var(--primary)' : 'var(--cuivre)' }}>
+                    <Icone nom={n.type === 'message' ? 'message' : 'etiquette'} taille={18} />
+                  </span>
+                  <span style={{ minWidth: 0, flex: 1, textAlign: 'left' }}>
+                    <span style={{ display: 'block', fontSize: 14, fontWeight: n.lu ? 500 : 700, color: 'var(--text)' }}>{n.titre}</span>
+                    {n.contenu && <span style={{ display: 'block', fontSize: 13, color: 'var(--text-secondary)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{n.contenu}</span>}
+                    <span style={{ display: 'block', fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{heureMessage(n.created_at)}</span>
+                  </span>
+                </button>
               ))}
             </div>
           )}

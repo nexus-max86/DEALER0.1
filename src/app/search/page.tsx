@@ -3,16 +3,13 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
+import Icone from '@/components/Icone'
+import CarteProduit, { type ProduitResume } from '@/components/CarteProduit'
 
 const categories = ['Toutes', 'Chaussures', 'Vêtements', 'Téléphones', 'Beauté', 'Électronique', 'Automobile', 'Maison', 'Sport', 'Autre']
 const etats = ['Tous', 'Neuf avec étiquette', 'Neuf sans étiquette', 'Très bon état', 'Bon état', 'État correct']
 const villes = ['Toutes', 'Lubumbashi', 'Kinshasa', 'Kolwezi', 'Likasi', 'Goma', 'Bukavu']
 
-const icones: Record<string, string> = {
-  chaussures: '👟', vetements: '👕', telephones: '📱',
-  beaute: '💄', electronique: '💻', automobile: '🚗',
-  maison: '🏠', sport: '⚽', autre: '📦',
-}
 
 export default function Search() {
   const [query, setQuery] = useState('')
@@ -31,11 +28,13 @@ export default function Search() {
     setLoading(true)
     let q = supabase
       .from('produits')
-      .select('*', { count: 'exact' })
-      .eq('statut', 'actif')
+      .select('id, titre, prix, categorie, marque, ville, images, statut, quantite', { count: 'exact' })
+      .in('statut', ['actif', 'reserve'])
 
-    if (query.trim()) {
-      q = q.or('titre.ilike.%' + query + '%,description.ilike.%' + query + '%,marque.ilike.%' + query + '%')
+    // Les virgules et parenthèses casseraient le filtre : on les retire
+    const motCle = query.replace(/[,()%*]/g, ' ').trim()
+    if (motCle) {
+      q = q.or('titre.ilike.%' + motCle + '%,description.ilike.%' + motCle + '%,marque.ilike.%' + motCle + '%')
     }
     if (categorie !== 'Toutes') {
       q = q.ilike('categorie', categorie.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''))
@@ -88,7 +87,7 @@ export default function Search() {
           {/* BARRE DE RECHERCHE */}
           <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
             <div style={{ flex: 1, position: 'relative' }}>
-              <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none' }}>🔍</span>
+              <Icone nom="recherche" taille={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none' }} />
               <input
                 type="search"
                 value={query}
@@ -101,7 +100,7 @@ export default function Search() {
               onClick={() => setShowFiltres(!showFiltres)}
               style={{ background: showFiltres ? 'var(--primary)' : 'var(--white)', color: showFiltres ? 'white' : 'var(--text)', border: '1.5px solid var(--border)', borderRadius: 12, padding: '0 16px', cursor: 'pointer', fontWeight: 600, fontSize: 14, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6 }}
             >
-              ⚙️ Filtres
+              <Icone nom="filtre" taille={18} /> Filtres
             </button>
           </div>
 
@@ -181,7 +180,7 @@ export default function Search() {
 
           {!loading && resultats.length === 0 && (
             <div className="card" style={{ padding: 48, textAlign: 'center' }}>
-              <p style={{ fontSize: 48, marginBottom: 16 }}>🔍</p>
+              <span style={{ display: 'inline-flex', width: 56, height: 56, borderRadius: '50%', background: 'var(--primary-light)', color: 'var(--primary)', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}><Icone nom="recherche" taille={26} /></span>
               <p style={{ fontSize: 17, fontWeight: 700, marginBottom: 8 }}>Aucun résultat</p>
               <p style={{ color: 'var(--text-secondary)', marginBottom: 24 }}>Essayez avec d'autres mots-clés ou modifiez vos filtres.</p>
               <button onClick={resetFiltres} style={{ background: 'var(--primary)', color: 'white', padding: '12px 24px', borderRadius: 8, fontWeight: 700, border: 'none', cursor: 'pointer', fontSize: 14 }}>
@@ -191,30 +190,8 @@ export default function Search() {
           )}
 
           {!loading && resultats.length > 0 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 16 }}>
-              {resultats.map((p: any) => (
-                <a
-                  key={p.id}
-                  href={'/product/' + p.id}
-                  className="product-card"
-                  style={{ display: 'block', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden', background: 'var(--white)', color: 'var(--text)' }}
-                >
-                  <div style={{ background: 'var(--surface)', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                    {p.images?.[0] ? (
-                      <img src={p.images[0]} alt={p.titre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <span style={{ fontSize: 52 }}>{icones[p.categorie] || '📦'}</span>
-                    )}
-                  </div>
-                  <div style={{ padding: '10px 10px 12px' }}>
-                    <span style={{ fontSize: 11, background: 'var(--primary-light)', color: 'var(--primary)', padding: '2px 8px', borderRadius: 6, fontWeight: 600 }}>{p.categorie}</span>
-                    <p style={{ fontSize: 14, fontWeight: 500, marginTop: 6, marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.titre}</p>
-                    {p.marque && <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{p.marque}</p>}
-                    <p style={{ fontSize: 16, fontWeight: 700 }}>{p.prix}$</p>
-                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>📍 {p.ville}</p>
-                  </div>
-                </a>
-              ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 16 }}>
+              {(resultats as ProduitResume[]).map(p => <CarteProduit key={p.id} p={p} />)}
             </div>
           )}
 

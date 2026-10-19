@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { supabase, assurerProfil } from '@/lib/supabase'
 import { CATEGORIES, ETATS, VILLES, photo, numeroWhatsApp, prixAffiche } from '@/lib/catalogue'
 import Header from '@/components/Header'
+import Icone from '@/components/Icone'
 
 const MAX_PHOTOS = 5
 const TYPES_ACCEPTES = ['image/jpeg', 'image/png', 'image/webp']
@@ -62,6 +63,7 @@ export default function Sell() {
   const [taille, setTaille] = useState('')
   const [etat, setEtat] = useState('')
   const [ville, setVille] = useState('Lubumbashi')
+  const [quantite, setQuantite] = useState('1')
   const [telephone, setTelephone] = useState('')
   const [telephoneInitial, setTelephoneInitial] = useState('')
   const [photos, setPhotos] = useState<Photo[]>([])
@@ -121,7 +123,9 @@ export default function Sell() {
     setErreur('')
     const montant = parseFloat(prix.replace(',', '.'))
     if (!isFinite(montant) || montant <= 0) { setErreur('Indique un prix supérieur à 0.'); return }
-    if (!numeroWhatsApp(telephone)) { setErreur('Indique un numéro WhatsApp valide (ex. +243 97 000 0000) pour que les acheteurs te contactent.'); return }
+    const stock = parseInt(quantite, 10)
+    if (!Number.isInteger(stock) || stock < 1) { setErreur('Indique une quantité d’au moins 1.'); return }
+    if (telephone.trim() && !numeroWhatsApp(telephone)) { setErreur('Ce numéro WhatsApp n’est pas valide (ex. +243 97 000 0000). Corrige-le ou laisse le champ vide.'); return }
 
     setLoading(true)
     const envoyees: string[] = []
@@ -131,7 +135,7 @@ export default function Sell() {
       const user = session.user
       await assurerProfil(user)
       if (telephone.trim() !== telephoneInitial) {
-        await supabase.from('profiles').update({ telephone: telephone.trim() }).eq('id', user.id)
+        await supabase.from('profiles').update({ telephone: telephone.trim() || null }).eq('id', user.id)
       }
 
       const imageUrls: string[] = []
@@ -159,6 +163,7 @@ export default function Sell() {
         images: imageUrls,
         vendeur_id: user.id,
         statut: 'actif',
+        quantite: stock,
       }).select('id').single()
       if (error) throw new Error(error.message)
       window.location.href = '/merci?id=' + data.id
@@ -242,7 +247,7 @@ export default function Sell() {
                 {photos.length < MAX_PHOTOS && (
                   <button type="button" onClick={() => inputRef.current?.click()}
                     style={{ width: '100%', border: '2px dashed var(--primary)', borderRadius: 10, padding: photos.length ? 18 : 36, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer', background: 'var(--primary-light)', marginBottom: 16, fontFamily: 'inherit' }}>
-                    <span style={{ fontSize: photos.length ? 24 : 38 }}>📷</span>
+                    <Icone nom="photo" taille={photos.length ? 24 : 36} style={{ color: 'var(--primary)' }} />
                     <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--primary)' }}>{photos.length ? 'Ajouter une autre photo' : 'Prendre ou choisir des photos'}</span>
                     {!photos.length && <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Depuis l’appareil photo ou la galerie</span>}
                   </button>
@@ -254,7 +259,7 @@ export default function Sell() {
                   <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4, lineHeight: 1.6 }}>Lumière du jour · Fond simple · Plusieurs angles · Montre les défauts s’il y en a</p>
                 </div>
 
-                <button type="button" onClick={() => suivant(1)} style={{ ...btnNext, width: '100%' }}>Continuer →</button>
+                <button type="button" onClick={() => suivant(1)} style={{ ...btnNext, width: '100%' }}>Continuer</button>
               </div>
             )}
 
@@ -273,8 +278,8 @@ export default function Sell() {
                   ))}
                 </div>
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button type="button" onClick={() => setEtape(1)} style={btnBack}>← Retour</button>
-                  <button type="button" onClick={() => suivant(2)} style={btnNext}>Continuer →</button>
+                  <button type="button" onClick={() => setEtape(1)} style={btnBack}>Retour</button>
+                  <button type="button" onClick={() => suivant(2)} style={btnNext}>Continuer</button>
                 </div>
               </div>
             )}
@@ -312,8 +317,8 @@ export default function Sell() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
-                  <button type="button" onClick={() => setEtape(2)} style={btnBack}>← Retour</button>
-                  <button type="button" onClick={() => suivant(3)} style={btnNext}>Continuer →</button>
+                  <button type="button" onClick={() => setEtape(2)} style={btnBack}>Retour</button>
+                  <button type="button" onClick={() => suivant(3)} style={btnNext}>Continuer</button>
                 </div>
               </div>
             )}
@@ -321,7 +326,7 @@ export default function Sell() {
             {etape === 4 && (
               <div>
                 <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Prix et contact</h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 20 }}>Les acheteurs te contacteront directement sur WhatsApp.</p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 20 }}>Les acheteurs t’écrivent sur DEALER et tu reçois une notification.</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <div>
                     <label htmlFor="prix" style={labelStyle}>Prix en dollars *</label>
@@ -331,15 +336,20 @@ export default function Sell() {
                     </div>
                   </div>
                   <div>
+                    <label htmlFor="quantite" style={labelStyle}>Quantité disponible *</label>
+                    <input id="quantite" type="number" inputMode="numeric" min="1" step="1" value={quantite} onChange={e => setQuantite(e.target.value)} style={inputStyle} />
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 5 }}>1 pour un article unique. Quand le stock tombe à 0, l’annonce passe en « Vendu » et les acheteurs intéressés sont prévenus.</p>
+                  </div>
+                  <div>
                     <label htmlFor="ville" style={labelStyle}>Ville *</label>
                     <select id="ville" value={ville} onChange={e => setVille(e.target.value)} style={inputStyle}>
                       {VILLES.map(v => <option key={v}>{v}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label htmlFor="tel" style={labelStyle}>Ton numéro WhatsApp *</label>
+                    <label htmlFor="tel" style={labelStyle}>Ton numéro WhatsApp <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(facultatif)</span></label>
                     <input id="tel" type="tel" inputMode="tel" autoComplete="tel" value={telephone} onChange={e => setTelephone(e.target.value)} placeholder="+243 97 000 0000" style={inputStyle} />
-                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 5 }}>Affiché sur ton annonce pour que les acheteurs t’écrivent. Il est enregistré dans ton profil.</p>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 5 }}>Proposé en option aux acheteurs qui préfèrent WhatsApp. Il est enregistré dans ton profil.</p>
                   </div>
 
                   <div style={{ background: 'var(--surface)', borderRadius: 10, padding: 14 }}>
@@ -358,7 +368,7 @@ export default function Sell() {
                 {progression && <p role="status" style={{ marginTop: 16, fontSize: 14, color: 'var(--primary)', fontWeight: 600 }}>{progression}</p>}
 
                 <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
-                  <button type="button" onClick={() => setEtape(3)} disabled={loading} style={btnBack}>← Retour</button>
+                  <button type="button" onClick={() => setEtape(3)} disabled={loading} style={btnBack}>Retour</button>
                   <button type="button" onClick={publier} disabled={loading}
                     style={{ ...btnNext, background: loading ? 'var(--border)' : 'var(--primary)', cursor: loading ? 'not-allowed' : 'pointer' }}>
                     {loading ? 'Publication…' : 'Publier mon annonce'}

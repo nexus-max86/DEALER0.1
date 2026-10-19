@@ -5,8 +5,12 @@ import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
 import Galerie from '@/components/Galerie'
 import CarteProduit, { type ProduitResume } from '@/components/CarteProduit'
+import ActionsAnnonce from '@/components/ActionsAnnonce'
+import BadgeStatut from '@/components/BadgeStatut'
+import Avatar from '@/components/Avatar'
+import Icone from '@/components/Icone'
 import { clientServeur } from '@/lib/serveur'
-import { SITE_URL, categorie, datePublication, numeroWhatsApp, prixAffiche } from '@/lib/catalogue'
+import { SITE_URL, categorie, datePublication, nomCourt, prixAffiche, statutDe } from '@/lib/catalogue'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -37,20 +41,18 @@ export default async function PageProduit({ params }: Props) {
 
   const db = clientServeur()
   const { data: vendeur } = p.vendeur_id
-    ? await db.from('profiles').select('id, prenom, nom, telephone, ville, created_at').eq('id', p.vendeur_id).maybeSingle()
+    ? await db.from('profiles').select('id, prenom, nom, telephone, ville, created_at, avatar_url, bio').eq('id', p.vendeur_id).maybeSingle()
     : { data: null }
   const { data: similaires } = await db.from('produits')
-    .select('id, titre, prix, categorie, marque, ville, images, statut')
-    .eq('statut', 'actif').eq('categorie', p.categorie).neq('id', p.id)
+    .select('id, titre, prix, categorie, marque, ville, images, statut, quantite')
+    .in('statut', ['actif', 'reserve']).eq('categorie', p.categorie).neq('id', p.id)
     .order('created_at', { ascending: false }).limit(4)
 
   const c = categorie(p.categorie)
   const images: string[] = Array.isArray(p.images) ? p.images : []
   const lien = SITE_URL + '/product/' + p.id
-  const numero = numeroWhatsApp(vendeur?.telephone)
-  const texte = 'Bonjour, je suis intéressé(e) par votre annonce « ' + p.titre + ' » à ' + prixAffiche(p.prix) + ' sur DEALER : ' + lien
-  const nomVendeur = vendeur ? ((vendeur.prenom || 'Vendeur') + (vendeur.nom ? ' ' + String(vendeur.nom)[0].toUpperCase() + '.' : '')) : 'Vendeur'
-  const vendu = p.statut === 'vendu'
+  const nomVendeur = vendeur ? nomCourt(vendeur) : 'Vendeur'
+  const statut = statutDe(p.statut)
 
   const details: [string, string][] = [
     ['Catégorie', c?.label || p.categorie || '—'],
@@ -59,6 +61,7 @@ export default async function PageProduit({ params }: Props) {
     ['Taille', p.taille || '—'],
     ['Ville', p.ville || 'Lubumbashi'],
     ['Publiée', datePublication(p.created_at)],
+    ['Disponibilité', statut === 'actif' ? ((p.quantite ?? 1) > 1 ? (p.quantite + ' en stock') : 'Dernier article') : statut === 'reserve' ? 'Réservé' : 'Vendu'],
   ]
 
   return (
@@ -79,36 +82,22 @@ export default async function PageProduit({ params }: Props) {
             <Galerie images={images} titre={p.titre} icone={c?.icon || '📦'} />
 
             <div>
+              <div style={{ marginBottom: 12 }}><BadgeStatut statut={p.statut} quantite={p.quantite} /></div>
               <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
                 {c && <span style={{ background: 'var(--primary-light)', color: 'var(--primary)', fontSize: 12, fontWeight: 600, padding: '4px 10px', borderRadius: 6 }}>{c.label}</span>}
                 {p.etat && <span style={{ background: '#FEF3C7', color: '#92400E', fontSize: 12, fontWeight: 600, padding: '4px 10px', borderRadius: 6 }}>{p.etat}</span>}
-                {vendu && <span style={{ background: '#DCFCE7', color: '#166534', fontSize: 12, fontWeight: 700, padding: '4px 10px', borderRadius: 6 }}>Vendu</span>}
+
               </div>
               <h1 style={{ fontSize: 26, fontWeight: 800, marginBottom: 8, lineHeight: 1.2, overflowWrap: 'anywhere' }}>{p.titre}</h1>
               <p style={{ fontSize: 32, fontWeight: 800, marginBottom: 4 }}>{prixAffiche(p.prix)}</p>
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 22 }}>📍 {p.ville || 'Lubumbashi'} · Publiée {datePublication(p.created_at)}</p>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 6 }}><Icone nom="lieu" taille={16} /> {p.ville || 'Lubumbashi'}, publiée {datePublication(p.created_at)}</p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 22 }}>
-                {vendu ? (
-                  <p style={{ background: 'var(--surface)', borderRadius: 8, padding: '14px 16px', fontSize: 15, textAlign: 'center' }}>Cet article a déjà été vendu.</p>
-                ) : numero ? (
-                  <>
-                    <a href={'https://wa.me/' + numero + '?text=' + encodeURIComponent(texte)} target="_blank" rel="noopener noreferrer"
-                      style={{ background: '#1FA855', color: 'white', fontWeight: 700, padding: '15px 0', borderRadius: 8, fontSize: 16, textAlign: 'center', display: 'block' }}>
-                      Contacter sur WhatsApp
-                    </a>
-                    <a href={'tel:+' + numero} style={{ border: '1.5px solid var(--primary)', color: 'var(--primary)', fontWeight: 700, padding: '13px 0', borderRadius: 8, fontSize: 15, textAlign: 'center', display: 'block' }}>
-                      Appeler le vendeur
-                    </a>
-                  </>
-                ) : (
-                  <p style={{ background: 'var(--surface)', borderRadius: 8, padding: '14px 16px', fontSize: 14, color: 'var(--text-secondary)' }}>Le vendeur n’a pas encore ajouté de numéro de contact.</p>
-                )}
-                <a href={'https://wa.me/?text=' + encodeURIComponent(p.titre + ' · ' + prixAffiche(p.prix) + ' sur DEALER : ' + lien)} target="_blank" rel="noopener noreferrer"
-                  style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', textDecoration: 'underline' }}>
-                  Partager cette annonce
-                </a>
-              </div>
+              <ActionsAnnonce lien={lien} prenomVendeur={vendeur?.prenom || 'le vendeur'} telephoneVendeur={vendeur?.telephone || null}
+                produit={{ id: p.id, titre: p.titre, prix: p.prix, vendeur_id: p.vendeur_id, statut: p.statut, quantite: p.quantite, vendus: p.vendus, vues: p.vues }} />
+              <a href={'https://wa.me/?text=' + encodeURIComponent(p.titre + ', ' + prixAffiche(p.prix) + ' sur DEALER : ' + lien)} target="_blank" rel="noopener noreferrer"
+                className="lien-discret" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 20, color: 'var(--text-secondary)' }}>
+                <Icone nom="partager" taille={16} /> Partager cette annonce
+              </a>
 
               {p.description && (
                 <div className="card" style={{ padding: 20, marginBottom: 16 }}>
@@ -131,13 +120,14 @@ export default async function PageProduit({ params }: Props) {
 
               <div className="card" style={{ padding: 20 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div style={{ width: 48, height: 48, background: 'var(--primary-light)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontWeight: 800, fontSize: 18, flexShrink: 0 }}>{nomVendeur[0]?.toUpperCase()}</div>
+                  <Avatar url={vendeur?.avatar_url} nom={vendeur?.prenom} taille={48} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontSize: 15, fontWeight: 700 }}>{nomVendeur}</p>
-                    <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>📍 {vendeur?.ville || 'Lubumbashi'}{vendeur?.created_at ? ' · Membre depuis ' + new Date(vendeur.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : ''}</p>
+                    <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{vendeur?.ville || 'Lubumbashi'}{vendeur?.created_at ? ', membre depuis ' + new Date(vendeur.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : ''}</p>
                   </div>
-                  {vendeur && <a href={'/profile/' + vendeur.id} style={{ fontSize: 13, color: 'var(--primary)', border: '1.5px solid var(--primary)', padding: '7px 14px', borderRadius: 8, fontWeight: 600, whiteSpace: 'nowrap' }}>Ses annonces</a>}
+                  {vendeur && <a href={'/profile/' + vendeur.id} className="bouton bouton-secondaire" style={{ fontSize: 13, padding: '7px 12px' }}>Son profil</a>}
                 </div>
+                {vendeur?.bio && <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, marginTop: 12, whiteSpace: 'pre-line', overflowWrap: 'anywhere' }}>{vendeur.bio}</p>}
               </div>
 
               <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 16, lineHeight: 1.6 }}>
