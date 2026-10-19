@@ -70,15 +70,19 @@ export function datePublication(iso: string | null | undefined) {
 }
 
 // Disponibilité d'une annonce. En base : 'actif' = disponible.
-export type Statut = 'actif' | 'reserve' | 'vendu'
+// 'suspendu' = masquée par l'administrateur : seul l'admin peut poser ou retirer ce statut.
+export type Statut = 'actif' | 'reserve' | 'vendu' | 'suspendu'
 export const STATUTS: Record<Statut, { label: string; couleur: string; fond: string; aide: string }> = {
   actif: { label: 'Disponible', couleur: '#166534', fond: '#DCFCE7', aide: 'Visible et achetable' },
   reserve: { label: 'Réservé', couleur: '#8A4513', fond: '#F8E6D6', aide: 'Un acheteur l’a réservé' },
   vendu: { label: 'Vendu', couleur: '#475569', fond: '#E8ECEF', aide: 'Plus disponible' },
+  suspendu: { label: 'Indisponible', couleur: '#991B1B', fond: '#FEE2E2', aide: 'Suspendue par l’équipe DEALER' },
 }
+// Statuts que le vendeur peut choisir lui-même
+export const STATUTS_VENDEUR: Statut[] = ['actif', 'reserve', 'vendu']
 
 export function statutDe(valeur: string | null | undefined): Statut {
-  return valeur === 'reserve' || valeur === 'vendu' ? valeur : 'actif'
+  return valeur === 'reserve' || valeur === 'vendu' || valeur === 'suspendu' ? valeur : 'actif'
 }
 
 // « Dernier article », « 3 en stock »… seulement pour un article disponible

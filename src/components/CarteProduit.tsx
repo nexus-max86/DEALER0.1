@@ -18,12 +18,13 @@ export default function CarteProduit({ p }: { p: ProduitResume }) {
   const c = categorie(p.categorie)
   const statut = statutDe(p.statut)
   const s = STATUTS[statut]
-  return (
-    <a href={'/product/' + p.id} className="product-card"
-      style={{ display: 'block', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden', background: 'var(--white)', color: 'var(--text)' }}>
+  const suspendue = statut === 'suspendu'
+  const style: React.CSSProperties = { display: 'block', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden', background: 'var(--white)', color: 'var(--text)', opacity: suspendue ? 0.7 : undefined }
+  const contenu = (
+    <>
       <div style={{ position: 'relative', background: 'var(--surface)', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
         {p.images && p.images.length > 0
-          ? <img src={p.images[0]} alt={p.titre} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: statut === 'vendu' ? 'grayscale(0.6)' : undefined }} />
+          ? <img src={p.images[0]} alt={p.titre} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: statut === 'vendu' || suspendue ? 'grayscale(0.6)' : undefined }} />
           : <Icone nom="boite" taille={48} style={{ color: 'var(--text-secondary)' }} />}
         {statut !== 'actif' && (
           <span style={{ position: 'absolute', top: 8, left: 8, background: s.fond, color: s.couleur, fontSize: 11, fontWeight: 800, padding: '3px 9px', borderRadius: 999 }}>{s.label}</span>
@@ -36,6 +37,9 @@ export default function CarteProduit({ p }: { p: ProduitResume }) {
           {[c?.label, p.marque, p.ville].filter(Boolean).join(', ')}
         </p>
       </div>
-    </a>
+    </>
   )
+  // Une annonce suspendue par l'admin (visible seulement dans les favoris) n'ouvre plus de page
+  if (suspendue) return <div className="product-card" style={style}>{contenu}</div>
+  return <a href={'/product/' + p.id} className="product-card" style={style}>{contenu}</a>
 }

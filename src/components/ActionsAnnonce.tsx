@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase, assurerProfil } from '@/lib/supabase'
-import { STATUTS, statutDe, numeroWhatsApp, prixAffiche, type Statut } from '@/lib/catalogue'
+import { STATUTS, STATUTS_VENDEUR, statutDe, numeroWhatsApp, prixAffiche, type Statut } from '@/lib/catalogue'
 import { useUtilisateur } from '@/lib/useCompte'
 import Icone from './Icone'
 
@@ -84,7 +84,7 @@ export default function ActionsAnnonce({ produit, telephoneVendeur, prenomVendeu
         </p>
         <p className="etiquette-champ">Disponibilité</p>
         <div className="choix-statut" role="group" aria-label="Disponibilité">
-          {(Object.keys(STATUTS) as Statut[]).map(s => (
+          {STATUTS_VENDEUR.map(s => (
             <button key={s} type="button" aria-pressed={statut === s} onClick={() => statut !== s && enregistrer({ statut: s, ...(s === 'actif' && quantite === 0 ? { quantite: 1 } : {}) }, 'Disponibilité mise à jour. Les acheteurs intéressés sont prévenus.')}
               style={statut === s ? { background: STATUTS[s].fond, color: STATUTS[s].couleur, borderColor: STATUTS[s].couleur } : undefined}>
               {STATUTS[s].label}

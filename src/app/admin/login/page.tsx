@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import Icone from '@/components/Icone'
 
 export default function AdminLogin() {
   const [key, setKey] = useState('')
@@ -26,9 +27,10 @@ export default function AdminLogin() {
     <main style={{ minHeight: '100vh', background: '#001820', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div style={{ background: 'white', borderRadius: 16, padding: 40, width: '100%', maxWidth: 400 }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <p style={{ fontSize: 40, marginBottom: 8 }}>🔐</p>
+          <span style={{ display: 'inline-flex', width: 56, height: 56, borderRadius: 16, background: '#E6F4F5', color: '#007782', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}><Icone nom="bouclier" taille={28} /></span>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: '#0F172A' }}>Admin DEALER</h1>
           <p style={{ fontSize: 13, color: '#64748B', marginTop: 4 }}>Accès réservé à l’administrateur</p>
+          <p style={{ fontSize: 12, color: '#64748B', marginTop: 8, lineHeight: 1.5 }}>Il faut la clé admin <strong>et</strong> être connecté avec le compte administrateur.</p>
         </div>
         {erreur && <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '12px 16px', borderRadius: 8, marginBottom: 16, fontSize: 14 }}>{erreur}</div>}
         <form onSubmit={login}>
