@@ -19,7 +19,8 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const chargerProduit = cache(async (id: string) => {
   if (!UUID.test(id)) return null
   const { data } = await clientServeur().from('produits').select('*').eq('id', id).maybeSingle()
-  return data
+  // Une annonce suspendue par l'admin n'est plus visible
+  return data && data.statut !== 'suspendu' ? data : null
 })
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

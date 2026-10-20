@@ -67,7 +67,7 @@ export default function NotifBell({ userId }: { userId: string }) {
               {notifs.map(n => (
                 <button key={n.id} type="button" onClick={() => ouvrir(n)} className="notif-ligne" style={{ background: n.lu ? 'white' : 'var(--primary-light)' }}>
                   <span className="notif-icone" style={{ color: n.type === 'message' ? 'var(--primary)' : 'var(--cuivre)' }}>
-                    <Icone nom={n.type === 'message' ? 'message' : 'etiquette'} taille={18} />
+                    <Icone nom={n.type === 'message' ? 'message' : n.type === 'moderation' ? 'bouclier' : 'etiquette'} taille={18} />
                   </span>
                   <span style={{ minWidth: 0, flex: 1, textAlign: 'left' }}>
                     <span style={{ display: 'block', fontSize: 14, fontWeight: n.lu ? 500 : 700, color: 'var(--text)' }}>{n.titre}</span>

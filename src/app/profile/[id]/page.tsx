@@ -18,7 +18,7 @@ async function charger(id: string) {
   if (!profil) return null
   const { data: annonces } = await db.from('produits')
     .select('id, titre, prix, categorie, marque, ville, images, statut, quantite, vendus')
-    .eq('vendeur_id', id).order('created_at', { ascending: false }).limit(60)
+    .eq('vendeur_id', id).neq('statut', 'suspendu').order('created_at', { ascending: false }).limit(60)
   return { profil, annonces: (annonces || []) as (ProduitResume & { vendus?: number | null })[] }
 }
 

@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { supabase, assurerProfil } from '@/lib/supabase'
-import { STATUTS, VILLES, prixAffiche, statutDe, nomCourt, type Statut } from '@/lib/catalogue'
+import { STATUTS, STATUTS_VENDEUR, VILLES, prixAffiche, statutDe, nomCourt } from '@/lib/catalogue'
 import { redimensionner, cheminDepuisUrl } from '@/lib/images'
 import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
@@ -132,7 +132,7 @@ export default function Account() {
 
   const enVente = annonces.filter(a => statutDe(a.statut) === 'actif').length
   const reservees = annonces.filter(a => statutDe(a.statut) === 'reserve').length
-  const enStock = annonces.filter(a => statutDe(a.statut) !== 'vendu').reduce((t, a) => t + (a.quantite || 0), 0)
+  const enStock = annonces.filter(a => statutDe(a.statut) === 'actif' || statutDe(a.statut) === 'reserve').reduce((t, a) => t + (a.quantite || 0), 0)
   const ventes = annonces.reduce((t, a) => t + (a.vendus || 0) + (statutDe(a.statut) === 'vendu' && !a.vendus ? 1 : 0), 0)
   const vues = annonces.reduce((t, a) => t + (a.vues || 0), 0)
   const plusVue = [...annonces].sort((x, y) => (y.vues || 0) - (x.vues || 0))[0]
@@ -226,9 +226,19 @@ export default function Account() {
                           <span>{a.vendus} vendu{a.vendus > 1 ? 's' : ''}</span>
                         </p>
                       </div>
+                      {statut === 'suspendu' ? (
+                      <div className="annonce-actions">
+                        <p role="note" style={{ fontSize: 13, color: '#991B1B', background: '#FEE2E2', borderRadius: 8, padding: '8px 10px', display: 'flex', gap: 6, alignItems: 'flex-start', maxWidth: 320 }}>
+                          <Icone nom="bouclier" taille={16} style={{ flexShrink: 0, marginTop: 1 }} /> Suspendue par l’équipe DEALER : cette annonce n’est plus visible sur le site.
+                        </p>
+                        <button type="button" aria-label={'Supprimer ' + a.titre} className="bouton bouton-neutre" style={{ padding: '7px 9px', color: '#B42318', alignSelf: 'flex-end' }} onClick={() => supprimerAnnonce(a)}>
+                          <Icone nom="poubelle" taille={17} />
+                        </button>
+                      </div>
+                      ) : (
                       <div className="annonce-actions">
                         <div className="choix-statut" role="group" aria-label={'Disponibilité de ' + a.titre}>
-                          {(Object.keys(STATUTS) as Statut[]).map(s => (
+                          {STATUTS_VENDEUR.map(s => (
                             <button key={s} type="button" aria-pressed={statut === s}
                               onClick={() => statut !== s && majAnnonce(a, { statut: s, ...(s === 'actif' && a.quantite === 0 ? { quantite: 1 } : {}) }, 'Disponibilité mise à jour : ' + STATUTS[s].label.toLowerCase() + '.')}
                               style={statut === s ? { background: STATUTS[s].fond, color: STATUTS[s].couleur, borderColor: STATUTS[s].couleur } : undefined}>
@@ -253,6 +263,7 @@ export default function Account() {
                           </button>
                         </div>
                       </div>
+                      )}
                     </div>
                   )
                 })}
