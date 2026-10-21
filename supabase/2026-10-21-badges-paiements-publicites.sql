@@ -175,6 +175,8 @@ create policy "Voir sa pièce d'identité ou admin" on storage.objects for selec
   using (bucket_id = 'verifications' and ((storage.foldername(name))[1] = (select auth.uid())::text or (select public.dealer_est_admin())));
 create policy "Admin supprime les pièces d'identité" on storage.objects for delete to authenticated
   using (bucket_id = 'verifications' and (select public.dealer_est_admin()));
+create policy "Supprimer sa pièce d'identité" on storage.objects for delete to authenticated
+  using (bucket_id = 'verifications' and (storage.foldername(name))[1] = (select auth.uid())::text);
 
 -- 6. Publicité locale (gérée par l'admin)
 create table if not exists public.publicites (
