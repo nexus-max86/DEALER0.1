@@ -5,6 +5,10 @@ import { cheminDepuisUrl } from '@/lib/images'
 import { STATUTS, statutDe, prixAffiche, categorie, type Statut } from '@/lib/catalogue'
 import Icone from '@/components/Icone'
 import BadgeStatut from '@/components/BadgeStatut'
+import BadgesVendeur from '@/components/BadgesVendeur'
+import AdminPaiements from './AdminPaiements'
+import AdminPublicites from './AdminPublicites'
+import AdminReglages from './AdminReglages'
 
 // Administration DEALER.
 // Double protection : la clé admin (vérifiée par le middleware) ET le compte administrateur
@@ -14,6 +18,7 @@ type Stats = {
   membres: number; membres_7j: number; non_confirmes: number
   annonces: number; disponibles: number; reservees: number; vendues: number; suspendues: number
   ventes: number; vues: number; messages: number; messages_7j: number
+  pro_actifs: number; verifies_actifs: number; paiements_en_attente: number; revenus_mois: number; revenus_pub_mois: number
 }
 type Annonce = {
   id: string; titre: string; prix: number; images: string[] | null; categorie: string | null; ville: string | null
@@ -23,7 +28,8 @@ type Membre = {
   id: string; email: string | null; prenom: string | null; nom: string | null; ville: string | null; telephone: string | null
   inscrit_le: string; email_confirme: boolean; derniere_connexion: string | null; annonces: number; admin: boolean
 }
-type Onglet = 'tableau' | 'annonces' | 'membres'
+type Onglet = 'tableau' | 'paiements' | 'annonces' | 'membres' | 'publicites' | 'reglages'
+type Badges = { pro_jusqua: string | null; verifie_jusqua: string | null }
 const FILTRES: { id: 'toutes' | Statut; label: string }[] = [
   { id: 'toutes', label: 'Toutes' },
   { id: 'actif', label: 'Disponibles' },
@@ -43,6 +49,7 @@ export default function Admin() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [annonces, setAnnonces] = useState<Annonce[]>([])
   const [membres, setMembres] = useState<Membre[]>([])
+  const [badgesParId, setBadgesParId] = useState<Map<string, Badges>>(new Map())
   const [recherche, setRecherche] = useState('')
   const [filtre, setFiltre] = useState<'toutes' | Statut>('toutes')
   const [enCours, setEnCours] = useState<string | null>(null)
@@ -50,16 +57,18 @@ export default function Admin() {
   const [erreur, setErreur] = useState('')
 
   const charger = useCallback(async () => {
-    const [s, a, m] = await Promise.all([
+    const [s, a, m, b] = await Promise.all([
       supabase.rpc('dealer_admin_stats'),
       supabase.from('produits').select('id, titre, prix, images, categorie, ville, statut, quantite, vendus, vues, created_at, vendeur_id')
         .order('created_at', { ascending: false }).limit(300),
       supabase.rpc('dealer_admin_membres'),
+      supabase.from('profiles').select('id, pro_jusqua, verifie_jusqua').or('pro_jusqua.not.is.null,verifie_jusqua.not.is.null'),
     ])
     if (s.error || m.error || a.error) { setErreur('Chargement incomplet. Recharge la page.'); return }
     setStats(s.data as Stats)
     setAnnonces((a.data as Annonce[]) || [])
     setMembres((m.data as Membre[]) || [])
+    setBadgesParId(new Map(((b.data as (Badges & { id: string })[]) || []).map(x => [x.id, { pro_jusqua: x.pro_jusqua, verifie_jusqua: x.verifie_jusqua }] as [string, Badges])))
   }, [])
 
   useEffect(() => {
@@ -76,6 +85,7 @@ export default function Admin() {
   }, [charger])
 
   function annoncer(texte: string) { setErreur(''); setInfo(texte); setTimeout(() => setInfo(''), 3500) }
+  function signalerErreur(texte: string) { setInfo(''); setErreur(texte) }
 
   async function changerStatut(a: Annonce, nouveau: 'suspendu' | 'actif') {
     const question = nouveau === 'suspendu'
@@ -116,6 +126,7 @@ export default function Admin() {
   }
 
   const parId = useMemo(() => new Map(membres.map(m => [m.id, m])), [membres])
+  const personnes = useMemo(() => new Map(membres.map(m => [m.id, { nom: nomMembre(m), email: m.email }])), [membres])
   const q = recherche.trim().toLowerCase()
 
   const annoncesFiltrees = annonces.filter(a => {
@@ -148,7 +159,11 @@ export default function Admin() {
     )
   }
 
-  const cartes: { icone: Parameters<typeof Icone>[0]['nom']; valeur: number; label: string; aide: string; alerte?: boolean }[] = stats ? [
+  const cartes: { icone: string; valeur: number; label: string; aide: string; alerte?: boolean; argent?: boolean; vers?: Onglet }[] = stats ? [
+    { icone: 'portefeuille', valeur: Number(stats.revenus_mois) + Number(stats.revenus_pub_mois), argent: true, label: 'Revenus du mois', aide: 'Badges ' + prixAffiche(stats.revenus_mois) + ' · Publicités ' + prixAffiche(stats.revenus_pub_mois) },
+    ...(stats.paiements_en_attente > 0 ? [{ icone: 'portefeuille', valeur: stats.paiements_en_attente, label: 'Paiements à valider', aide: 'Clique pour les vérifier', alerte: true, vers: 'paiements' as Onglet }] : []),
+    { icone: 'etoile', valeur: stats.pro_actifs, label: 'Vendeurs Pro', aide: 'Badges actifs' },
+    { icone: 'bouclier', valeur: stats.verifies_actifs, label: 'Vendeurs vérifiés', aide: 'Badges actifs' },
     { icone: 'utilisateur', valeur: stats.membres, label: 'Membres', aide: '+' + stats.membres_7j + ' cette semaine' },
     { icone: 'etiquette', valeur: stats.annonces, label: 'Annonces', aide: stats.disponibles + ' dispo · ' + stats.reservees + ' réservées · ' + stats.vendues + ' vendues' },
     { icone: 'graphique', valeur: stats.ventes, label: 'Ventes déclarées', aide: 'Articles marqués vendus' },
@@ -172,9 +187,10 @@ export default function Admin() {
           </div>
         </div>
         <nav className="container admin-onglets" aria-label="Sections">
-          {([['tableau', 'Tableau de bord', 'graphique'], ['annonces', 'Annonces', 'etiquette'], ['membres', 'Membres', 'utilisateur']] as const).map(([id, label, icone]) => (
+          {([['tableau', 'Tableau de bord', 'graphique'], ['paiements', 'Paiements', 'portefeuille'], ['annonces', 'Annonces', 'etiquette'], ['membres', 'Membres', 'utilisateur'], ['publicites', 'Publicités', 'megaphone'], ['reglages', 'Réglages', 'crayon']] as const).map(([id, label, icone]) => (
             <button key={id} type="button" aria-current={onglet === id ? 'page' : undefined} onClick={() => { setOnglet(id); setRecherche('') }}>
               <Icone nom={icone} taille={16} /> {label}
+              {id === 'paiements' && !!stats?.paiements_en_attente && <span className="admin-compte" style={{ background: '#D92D20' }}>{stats.paiements_en_attente}</span>}
               {id === 'annonces' && <span className="admin-compte">{annonces.length}</span>}
               {id === 'membres' && <span className="admin-compte">{membres.length}</span>}
             </button>
@@ -195,9 +211,10 @@ export default function Admin() {
             {!stats ? <p style={{ color: 'var(--text-secondary)' }}>Chargement…</p> : (
               <div className="admin-stats">
                 {cartes.map(c => (
-                  <div key={c.label} className="carte stat" style={c.alerte ? { borderColor: '#F59E0B', background: '#FFFBEB' } : undefined}>
+                  <div key={c.label} className="carte stat" onClick={c.vers ? () => setOnglet(c.vers!) : undefined} role={c.vers ? 'button' : undefined}
+                    style={{ ...(c.alerte ? { borderColor: '#F59E0B', background: '#FFFBEB' } : {}), ...(c.vers ? { cursor: 'pointer' } : {}) }}>
                     <span className="stat-icone" style={c.alerte ? { background: '#FEF3C7', color: '#92400E' } : undefined}><Icone nom={c.icone} taille={18} /></span>
-                    <p className="stat-valeur">{c.valeur.toLocaleString('fr-FR')}</p>
+                    <p className="stat-valeur">{c.argent ? prixAffiche(c.valeur) : c.valeur.toLocaleString('fr-FR')}</p>
                     <p className="stat-label">{c.label}</p>
                     <p className="stat-aide" style={{ WebkitLineClamp: c.alerte ? 4 : 2 }}>{c.aide}</p>
                   </div>
@@ -223,6 +240,10 @@ export default function Admin() {
             </section>
           </>
         )}
+
+        {onglet === 'paiements' && <AdminPaiements personnes={personnes} onTraite={charger} annoncer={annoncer} signalerErreur={signalerErreur} />}
+        {onglet === 'publicites' && <AdminPublicites annoncer={annoncer} signalerErreur={signalerErreur} onChange={charger} />}
+        {onglet === 'reglages' && <AdminReglages annoncer={annoncer} signalerErreur={signalerErreur} />}
 
         {onglet === 'annonces' && (
           <>
@@ -285,6 +306,7 @@ export default function Admin() {
                     <p className="admin-titre">
                       {nomMembre(m)}
                       {m.admin && <span className="admin-statut" style={{ background: 'var(--primary-light)', color: 'var(--primary)', marginLeft: 8 }}>Admin</span>}
+                      {badgesParId.get(m.id) && <span style={{ marginLeft: 8 }}><BadgesVendeur profil={badgesParId.get(m.id)} taille="petit" /></span>}
                     </p>
                     <p className="admin-meta">{m.email}{m.telephone ? ' · ' + m.telephone : ''}{m.ville ? ' · ' + m.ville : ''}</p>
                     <p className="admin-meta">Inscrit le {dateCourte(m.inscrit_le)} · Dernière connexion : {dateCourte(m.derniere_connexion)} · {m.annonces} annonce{m.annonces > 1 ? 's' : ''}</p>

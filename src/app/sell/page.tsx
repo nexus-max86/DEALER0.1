@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import { supabase, assurerProfil } from '@/lib/supabase'
-import { CATEGORIES, ETATS, VILLES, photo, numeroWhatsApp, prixAffiche } from '@/lib/catalogue'
+import { CATEGORIES, ETATS, VILLES, LIMITE_GRATUITE, badgesDe, estLimiteAnnonces, photo, numeroWhatsApp, prixAffiche } from '@/lib/catalogue'
 import Header from '@/components/Header'
 import Icone from '@/components/Icone'
 
@@ -37,6 +37,7 @@ async function preparerPhoto(file: File): Promise<Blob> {
 
 function messageErreur(message: string) {
   const m = message.toLowerCase()
+  if (estLimiteAnnonces(message)) return 'Tu as déjà ' + LIMITE_GRATUITE + ' annonces actives. Passe Vendeur Pro pour publier sans limite, ou marque une annonce comme vendue.'
   if (m.includes('row-level security') || m.includes('jwt') || m.includes('not authorized')) return 'Ta session a expiré : reconnecte-toi, puis publie à nouveau.'
   if (m.includes('exceeded') || m.includes('too large')) return 'Une photo est trop lourde. Choisis une autre photo.'
   if (m.includes('mime') || m === 'format') return 'Format de photo non accepté. Utilise des photos JPG ou PNG.'
@@ -53,7 +54,7 @@ const btnBack: React.CSSProperties = { flex: 1, padding: '13px 0', borderRadius:
 const btnNext: React.CSSProperties = { flex: 2, padding: '14px 0', borderRadius: 8, border: 'none', background: 'var(--primary)', color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 15 }
 
 export default function Sell() {
-  const [compte, setCompte] = useState<'chargement' | 'absent' | 'ok'>('chargement')
+  const [compte, setCompte] = useState<'chargement' | 'absent' | 'ok' | 'limite'>('chargement')
   const [etape, setEtape] = useState(1)
   const [cat, setCat] = useState('')
   const [titre, setTitre] = useState('')
@@ -76,6 +77,13 @@ export default function Sell() {
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
       if (!data.session) { setCompte('absent'); return }
+      // Limite d'annonces actives sans le badge Pro (la base fait la même vérification)
+      const uid = data.session.user.id
+      const [{ count }, { data: badges }] = await Promise.all([
+        supabase.from('produits').select('id', { count: 'exact', head: true }).eq('vendeur_id', uid).in('statut', ['actif', 'reserve']),
+        supabase.from('profiles').select('pro_jusqua').eq('id', uid).maybeSingle(),
+      ])
+      if (!badgesDe(badges).pro && (count || 0) >= LIMITE_GRATUITE) { setCompte('limite'); return }
       setCompte('ok')
       try {
         const profil = await assurerProfil(data.session.user)
@@ -179,6 +187,27 @@ export default function Sell() {
 
   if (compte === 'chargement') {
     return <><Header /><main style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: 'var(--text-secondary)' }}>Chargement…</p></main></>
+  }
+
+  if (compte === 'limite') {
+    return (
+      <>
+        <Header />
+        <main style={{ background: 'var(--surface)', minHeight: '100vh', padding: '32px 16px' }}>
+          <div className="carte" style={{ maxWidth: 480, margin: '0 auto', padding: 28, textAlign: 'center' }}>
+            <span className="stat-icone" style={{ background: '#F8E6D6', color: '#8A4513', width: 52, height: 52, borderRadius: 14 }}><Icone nom="etoile" taille={26} /></span>
+            <h1 style={{ fontSize: 22, fontWeight: 800, margin: '10px 0 8px' }}>Tu as {LIMITE_GRATUITE} annonces actives</h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 15, lineHeight: 1.6, marginBottom: 22 }}>
+              C’est le maximum d’un compte gratuit. Passe <strong>Vendeur Pro</strong> pour publier sans limite, ou marque comme vendues les annonces qui ne sont plus disponibles.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <a href="/offres" className="bouton bouton-principal">Passer Vendeur Pro</a>
+              <a href="/account" className="bouton bouton-neutre">Gérer mes annonces</a>
+            </div>
+          </div>
+        </main>
+      </>
+    )
   }
 
   if (compte === 'absent') {

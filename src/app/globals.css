@@ -212,3 +212,19 @@ button { font-family: inherit; }
 @media (max-width: 640px) {
   .admin-ligne-annonce .admin-actions { width: 100%; padding-left: 64px; }
 }
+
+/* Offres (badges payants) */
+.choix-periode { display: inline-flex; background: white; border: 1px solid var(--border); border-radius: 999px; padding: 4px; margin-bottom: 16px; }
+.choix-periode button { border: none; background: none; font: inherit; font-size: 14px; font-weight: 700; padding: 8px 16px; border-radius: 999px; cursor: pointer; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 8px; }
+.choix-periode button[aria-pressed="true"] { background: var(--primary); color: white; }
+.pastille-eco { font-size: 11px; font-weight: 800; background: #F8E6D6; color: #8A4513; padding: 2px 7px; border-radius: 999px; }
+.choix-periode button[aria-pressed="true"] .pastille-eco { background: rgba(255,255,255,0.2); color: white; }
+.grille-offres { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.offre { padding: 22px; display: flex; flex-direction: column; gap: 4px; }
+.offre .bouton { margin-top: auto; }
+.ligne-numero { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); font-size: 15px; flex-wrap: wrap; }
+
+/* Publicité locale */
+.pub { display: flex; gap: 14px; align-items: center; padding: 14px; text-decoration: none; color: var(--text); position: relative; }
+.pub img { width: 88px; height: 88px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
+.pub-etiquette { position: absolute; top: 8px; right: 10px; font-size: 10.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }

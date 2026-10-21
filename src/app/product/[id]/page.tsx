@@ -9,8 +9,9 @@ import ActionsAnnonce from '@/components/ActionsAnnonce'
 import BadgeStatut from '@/components/BadgeStatut'
 import Avatar from '@/components/Avatar'
 import Icone from '@/components/Icone'
+import BadgesVendeur from '@/components/BadgesVendeur'
 import { clientServeur } from '@/lib/serveur'
-import { SITE_URL, categorie, datePublication, nomCourt, prixAffiche, statutDe } from '@/lib/catalogue'
+import { SITE_URL, badgesDe, categorie, datePublication, nomCourt, prixAffiche, statutDe } from '@/lib/catalogue'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -42,7 +43,7 @@ export default async function PageProduit({ params }: Props) {
 
   const db = clientServeur()
   const { data: vendeur } = p.vendeur_id
-    ? await db.from('profiles').select('id, prenom, nom, telephone, ville, created_at, avatar_url, bio').eq('id', p.vendeur_id).maybeSingle()
+    ? await db.from('profiles').select('id, prenom, nom, telephone, ville, created_at, avatar_url, bio, pro_jusqua, verifie_jusqua, boutique_nom').eq('id', p.vendeur_id).maybeSingle()
     : { data: null }
   const { data: similaires } = await db.from('produits')
     .select('id, titre, prix, categorie, marque, ville, images, statut, quantite')
@@ -52,7 +53,7 @@ export default async function PageProduit({ params }: Props) {
   const c = categorie(p.categorie)
   const images: string[] = Array.isArray(p.images) ? p.images : []
   const lien = SITE_URL + '/product/' + p.id
-  const nomVendeur = vendeur ? nomCourt(vendeur) : 'Vendeur'
+  const nomVendeur = vendeur ? (badgesDe(vendeur).pro && vendeur.boutique_nom ? vendeur.boutique_nom : nomCourt(vendeur)) : 'Vendeur'
   const statut = statutDe(p.statut)
 
   const details: [string, string][] = [
@@ -123,7 +124,7 @@ export default async function PageProduit({ params }: Props) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                   <Avatar url={vendeur?.avatar_url} nom={vendeur?.prenom} taille={48} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 15, fontWeight: 700 }}>{nomVendeur}</p>
+                    <p style={{ fontSize: 15, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>{nomVendeur} <BadgesVendeur profil={vendeur} taille="petit" /></p>
                     <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{vendeur?.ville || 'Lubumbashi'}{vendeur?.created_at ? ', membre depuis ' + new Date(vendeur.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : ''}</p>
                   </div>
                   {vendeur && <a href={'/profile/' + vendeur.id} className="bouton bouton-secondaire" style={{ fontSize: 13, padding: '7px 12px' }}>Son profil</a>}
