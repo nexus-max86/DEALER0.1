@@ -2,15 +2,16 @@
 import { useState, useEffect, useRef } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { supabase, assurerProfil } from '@/lib/supabase'
-import { STATUTS, STATUTS_VENDEUR, VILLES, prixAffiche, statutDe, nomCourt } from '@/lib/catalogue'
+import { STATUTS, STATUTS_VENDEUR, VILLES, LIMITE_GRATUITE, prixAffiche, statutDe, nomCourt, badgesDe, dateLongue, estLimiteAnnonces } from '@/lib/catalogue'
 import { redimensionner, cheminDepuisUrl } from '@/lib/images'
 import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
 import Avatar from '@/components/Avatar'
 import Icone from '@/components/Icone'
 import BadgeStatut from '@/components/BadgeStatut'
+import BadgesVendeur from '@/components/BadgesVendeur'
 
-type Profil = { id: string; prenom: string | null; nom: string | null; telephone: string | null; ville: string | null; bio: string | null; avatar_url: string | null; created_at?: string }
+type Profil = { id: string; prenom: string | null; nom: string | null; telephone: string | null; ville: string | null; bio: string | null; avatar_url: string | null; created_at?: string; pro_jusqua?: string | null; verifie_jusqua?: string | null; boutique_nom?: string | null }
 type Annonce = { id: string; titre: string; prix: number; images: string[] | null; categorie: string | null; statut: string | null; quantite: number; vendus: number; vues: number; created_at: string }
 
 const BIO_MAX = 500
@@ -21,7 +22,7 @@ export default function Account() {
   const [annonces, setAnnonces] = useState<Annonce[]>([])
   const [messagesRecus, setMessagesRecus] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [form, setForm] = useState({ prenom: '', nom: '', telephone: '', ville: 'Lubumbashi', bio: '' })
+  const [form, setForm] = useState({ prenom: '', nom: '', telephone: '', ville: 'Lubumbashi', bio: '', boutique: '' })
   const [saving, setSaving] = useState(false)
   const [photoEnvoi, setPhotoEnvoi] = useState(false)
   const [info, setInfo] = useState('')
@@ -36,14 +37,14 @@ export default function Account() {
       setUser(u)
       await assurerProfil(u).catch(() => {})
       const [p, a, m] = await Promise.all([
-        supabase.from('profiles').select('id, prenom, nom, telephone, ville, bio, avatar_url, created_at').eq('id', u.id).maybeSingle(),
+        supabase.from('profiles').select('id, prenom, nom, telephone, ville, bio, avatar_url, created_at, pro_jusqua, verifie_jusqua, boutique_nom').eq('id', u.id).maybeSingle(),
         supabase.from('produits').select('id, titre, prix, images, categorie, statut, quantite, vendus, vues, created_at').eq('vendeur_id', u.id).order('created_at', { ascending: false }),
         supabase.from('messages').select('id', { count: 'exact', head: true }).eq('destinataire_id', u.id),
       ])
       const pr = p.data as Profil | null
       if (pr) {
         setProfil(pr)
-        setForm({ prenom: pr.prenom || '', nom: pr.nom || '', telephone: pr.telephone || '', ville: pr.ville || 'Lubumbashi', bio: pr.bio || '' })
+        setForm({ prenom: pr.prenom || '', nom: pr.nom || '', telephone: pr.telephone || '', ville: pr.ville || 'Lubumbashi', bio: pr.bio || '', boutique: pr.boutique_nom || '' })
       }
       setAnnonces(((a.data as Annonce[]) || []).map(x => ({ ...x, quantite: x.quantite ?? 1, vendus: x.vendus ?? 0, vues: x.vues ?? 0 })))
       setMessagesRecus(m.count || 0)
@@ -64,7 +65,12 @@ export default function Account() {
     if (!user) return
     if (!form.prenom.trim()) { setErreur('Indique au moins ton prénom.'); return }
     setSaving(true); setErreur('')
-    const changements = { prenom: form.prenom.trim(), nom: form.nom.trim() || null, telephone: form.telephone.trim() || null, ville: form.ville, bio: form.bio.trim() || null }
+    const boutique = form.boutique.trim()
+    if (badgesDe(profil).pro && boutique && boutique.length < 2) { setErreur('Le nom de boutique doit faire au moins 2 caractères.'); return }
+    const changements = {
+      prenom: form.prenom.trim(), nom: form.nom.trim() || null, telephone: form.telephone.trim() || null, ville: form.ville, bio: form.bio.trim() || null,
+      ...(badgesDe(profil).pro ? { boutique_nom: boutique || null } : {}),
+    }
     const { error } = await supabase.from('profiles').update(changements).eq('id', user.id)
     setSaving(false)
     if (error) { setErreur('Profil non enregistré. Réessaie dans un instant.'); return }
@@ -108,6 +114,7 @@ export default function Account() {
 
   async function majAnnonce(a: Annonce, changements: Partial<Annonce>, message: string) {
     const { data, error } = await supabase.from('produits').update(changements).eq('id', a.id).select('statut, quantite, vendus').single()
+    if (error && estLimiteAnnonces(error.message)) { setErreur('Tu as déjà ' + LIMITE_GRATUITE + ' annonces actives. Passe Vendeur Pro pour en avoir plus, ou marque une annonce comme vendue.'); return }
     if (error || !data) { setErreur('Modification non enregistrée. Réessaie.'); return }
     setAnnonces(prev => prev.map(x => x.id === a.id ? { ...x, statut: data.statut, quantite: data.quantite, vendus: data.vendus } : x))
     annoncer(message)
@@ -164,7 +171,7 @@ export default function Account() {
               <input ref={inputPhoto} type="file" accept="image/*" onChange={changerPhoto} style={{ display: 'none' }} />
             </div>
             <div style={{ flex: 1, minWidth: 200 }}>
-              <h1 style={{ fontSize: 22, fontWeight: 800 }}>{profil ? nomCourt(profil) : 'Mon compte'}</h1>
+              <h1 style={{ fontSize: 22, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>{profil ? nomCourt(profil) : 'Mon compte'} <BadgesVendeur profil={profil} /></h1>
               <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 2, overflowWrap: 'anywhere' }}>{user?.email}</p>
               <div style={{ display: 'flex', gap: 14, marginTop: 8, flexWrap: 'wrap' }}>
                 <button type="button" className="lien-discret" onClick={() => inputPhoto.current?.click()} disabled={photoEnvoi}>{photoEnvoi ? 'Envoi de la photo…' : profil?.avatar_url ? 'Changer la photo' : 'Ajouter une photo de profil'}</button>
@@ -175,6 +182,17 @@ export default function Account() {
             <button type="button" onClick={deconnecter} className="bouton bouton-neutre" style={{ fontSize: 14, padding: '9px 14px' }}>
               <Icone nom="sortie" taille={18} /> Se déconnecter
             </button>
+          </section>
+
+          {/* Badges */}
+          <section className="carte" style={{ padding: 18, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span className="stat-icone" style={{ background: '#F8E6D6', color: '#8A4513', margin: 0 }}><Icone nom="etoile" taille={18} /></span>
+            <div style={{ flex: 1, minWidth: 220, fontSize: 14, lineHeight: 1.6 }}>
+              <p style={{ fontWeight: 800, fontSize: 15 }}>Mes badges</p>
+              <p>Vendeur Pro : {badgesDe(profil).pro ? <strong>actif jusqu’au {dateLongue(profil?.pro_jusqua)}</strong> : <span style={{ color: 'var(--text-secondary)' }}>non actif · {enVente + reservees} / {LIMITE_GRATUITE} annonces actives</span>}</p>
+              <p>Vendeur vérifié : {badgesDe(profil).verifie ? <strong>actif jusqu’au {dateLongue(profil?.verifie_jusqua)}</strong> : <span style={{ color: 'var(--text-secondary)' }}>non actif</span>}</p>
+            </div>
+            <a href="/offres" className="bouton bouton-secondaire" style={{ padding: '9px 14px', fontSize: 14 }}>{badgesDe(profil).pro || badgesDe(profil).verifie ? 'Prolonger ou ajouter un badge' : 'Voir les badges'}</a>
           </section>
 
           {/* Statistiques */}
@@ -280,6 +298,9 @@ export default function Account() {
                 <div><label htmlFor="prenom" className="etiquette-champ">Prénom</label><input id="prenom" className="champ" value={form.prenom} onChange={e => setForm({ ...form, prenom: e.target.value })} autoComplete="given-name" /></div>
                 <div><label htmlFor="nom" className="etiquette-champ">Nom <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(seule l’initiale est affichée)</span></label><input id="nom" className="champ" value={form.nom} onChange={e => setForm({ ...form, nom: e.target.value })} autoComplete="family-name" /></div>
                 <div><label htmlFor="tel" className="etiquette-champ">Numéro WhatsApp <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(facultatif)</span></label><input id="tel" type="tel" inputMode="tel" className="champ" value={form.telephone} onChange={e => setForm({ ...form, telephone: e.target.value })} placeholder="+243 97 000 0000" autoComplete="tel" /></div>
+                {badgesDe(profil).pro && (
+                  <div><label htmlFor="boutique" className="etiquette-champ">Nom de ta boutique <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(Pro)</span></label><input id="boutique" className="champ" maxLength={60} value={form.boutique} onChange={e => setForm({ ...form, boutique: e.target.value })} placeholder="Ex. : Chez Mado Électronique" /></div>
+                )}
                 <div><label htmlFor="ville" className="etiquette-champ">Ville</label><select id="ville" className="champ" value={form.ville} onChange={e => setForm({ ...form, ville: e.target.value })}>{VILLES.map(v => <option key={v}>{v}</option>)}</select></div>
               </div>
               <div>

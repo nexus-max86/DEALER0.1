@@ -4,9 +4,10 @@ import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
 import Avatar from '@/components/Avatar'
 import Icone from '@/components/Icone'
+import BadgesVendeur from '@/components/BadgesVendeur'
 import CarteProduit, { type ProduitResume } from '@/components/CarteProduit'
 import { clientServeur } from '@/lib/serveur'
-import { nomCourt, numeroWhatsApp } from '@/lib/catalogue'
+import { badgesDe, nomCourt, numeroWhatsApp } from '@/lib/catalogue'
 
 type Props = { params: Promise<{ id: string }> }
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -14,7 +15,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 async function charger(id: string) {
   if (!UUID.test(id)) return null
   const db = clientServeur()
-  const { data: profil } = await db.from('profiles').select('id, prenom, nom, ville, bio, avatar_url, telephone, created_at').eq('id', id).maybeSingle()
+  const { data: profil } = await db.from('profiles').select('id, prenom, nom, ville, bio, avatar_url, telephone, created_at, pro_jusqua, verifie_jusqua, boutique_nom').eq('id', id).maybeSingle()
   if (!profil) return null
   const { data: annonces } = await db.from('produits')
     .select('id, titre, prix, categorie, marque, ville, images, statut, quantite, vendus')
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
   const d = await charger(id)
   if (!d) return { title: 'Profil introuvable' }
-  return { title: nomCourt(d.profil) + ', vendeur à ' + (d.profil.ville || 'Lubumbashi'), description: d.profil.bio || undefined }
+  return { title: (badgesDe(d.profil).pro && d.profil.boutique_nom ? d.profil.boutique_nom : nomCourt(d.profil)) + ', vendeur à ' + (d.profil.ville || 'Lubumbashi'), description: d.profil.bio || undefined }
 }
 
 export default async function ProfilPublic({ params }: Props) {
@@ -47,7 +48,11 @@ export default async function ProfilPublic({ params }: Props) {
           <section className="carte" style={{ padding: 24, display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'flex-start', marginBottom: 24 }}>
             <Avatar url={profil.avatar_url} nom={profil.prenom} taille={96} />
             <div style={{ flex: 1, minWidth: 220 }}>
-              <h1 style={{ fontSize: 26, fontWeight: 800 }}>{nomCourt(profil)}</h1>
+              {badgesDe(profil).pro && profil.boutique_nom && (
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--cuivre)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}><Icone nom="boutique" taille={16} /> Boutique</p>
+              )}
+              <h1 style={{ fontSize: 26, fontWeight: 800 }}>{badgesDe(profil).pro && profil.boutique_nom ? profil.boutique_nom : nomCourt(profil)}</h1>
+              <div style={{ marginTop: 6 }}><BadgesVendeur profil={profil} /></div>
               <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Icone nom="lieu" taille={16} /> {profil.ville || 'Lubumbashi'}{depuis ? ', membre depuis ' + depuis : ''}
               </p>

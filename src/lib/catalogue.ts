@@ -108,3 +108,35 @@ export function heureMessage(iso: string | null | undefined) {
   if (d.toDateString() === hier.toDateString()) return 'hier'
   return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
 }
+
+// ——— Badges payants et paiement mobile money ———
+
+// Nombre d'annonces actives (disponibles ou réservées) sans le badge Pro. La base applique la même limite.
+export const LIMITE_GRATUITE = 10
+
+type AvecBadges = { pro_jusqua?: string | null; verifie_jusqua?: string | null } | null | undefined
+export function badgesDe(p: AvecBadges) {
+  const maintenant = Date.now()
+  return {
+    pro: !!p?.pro_jusqua && new Date(p.pro_jusqua).getTime() > maintenant,
+    verifie: !!p?.verifie_jusqua && new Date(p.verifie_jusqua).getTime() > maintenant,
+  }
+}
+
+export const OPERATEURS = [
+  { code: 'mpesa', label: 'M-Pesa (Vodacom)', couleur: '#E60000' },
+  { code: 'orange', label: 'Orange Money', couleur: '#FF7900' },
+  { code: 'airtel', label: 'Airtel Money', couleur: '#ED1C24' },
+  { code: 'afrimoney', label: 'Afrimoney (Africell)', couleur: '#5B2A86' },
+] as const
+export type CodeOperateur = typeof OPERATEURS[number]['code']
+
+export function dateLongue(iso: string | null | undefined) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+// Message d'erreur lisible quand la base refuse une annonce de plus
+export function estLimiteAnnonces(message: string | null | undefined) {
+  return (message || '').includes('LIMITE_ANNONCES')
+}

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase, assurerProfil } from '@/lib/supabase'
-import { STATUTS, STATUTS_VENDEUR, statutDe, numeroWhatsApp, prixAffiche, type Statut } from '@/lib/catalogue'
+import { STATUTS, STATUTS_VENDEUR, LIMITE_GRATUITE, estLimiteAnnonces, statutDe, numeroWhatsApp, prixAffiche, type Statut } from '@/lib/catalogue'
 import { useUtilisateur } from '@/lib/useCompte'
 import Icone from './Icone'
 
@@ -67,6 +67,7 @@ export default function ActionsAnnonce({ produit, telephoneVendeur, prenomVendeu
   async function enregistrer(changements: Partial<Produit>, message: string) {
     setMaj('Enregistrement…')
     const { data, error } = await supabase.from('produits').update(changements).eq('id', produit.id).select('statut, quantite, vendus').single()
+    if (error && estLimiteAnnonces(error.message)) { setMaj('Tu as déjà ' + LIMITE_GRATUITE + ' annonces actives : passe Vendeur Pro (page Badges) pour en avoir plus.'); return }
     if (error || !data) { setMaj('Échec de l’enregistrement. Réessaie.'); return }
     setStatut(statutDe(data.statut)); setQuantite(data.quantite); setVendus(data.vendus)
     setMaj(message)

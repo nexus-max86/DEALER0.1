@@ -6,6 +6,7 @@ import { categorie, photo } from '@/lib/catalogue'
 import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
 import CarteProduit, { type ProduitResume } from '@/components/CarteProduit'
+import Publicite from '@/components/Publicite'
 
 export default function Categorie() {
   const params = useParams<{ slug: string }>()
@@ -56,6 +57,8 @@ export default function Categorie() {
               <option value="prix_desc">Prix décroissant</option>
             </select>
           </div>
+
+          <Publicite categorie={slug} marge={16} />
 
           {loading && <p style={{ textAlign: 'center', padding: 48, color: 'var(--text-secondary)' }}>Chargement…</p>}
           {erreur && <p role="alert" style={{ textAlign: 'center', padding: 24, color: '#991B1B' }}>{erreur}</p>}

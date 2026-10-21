@@ -4,6 +4,7 @@ import BottomNav from '@/components/BottomNav'
 import CarteProduit, { type ProduitResume } from '@/components/CarteProduit'
 import { clientServeur } from '@/lib/serveur'
 import Icone from '@/components/Icone'
+import Publicite from '@/components/Publicite'
 import { CATEGORIES, PHOTO_ACCUEIL, PHOTOS_ETAPES, photo } from '@/lib/catalogue'
 
 export const metadata: Metadata = {
@@ -100,6 +101,7 @@ export default async function Home() {
         {/* ANNONCES REELLES */}
         <section id="annonces" style={{ padding: '0 0 44px' }}>
           <div className="container">
+            <Publicite marge={22} />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18, gap: 12 }}>
               <h2 style={{ fontSize: 22, fontWeight: 800 }}>Dernières annonces</h2>
               {produits.length > 0 && <a href="/search" style={{ fontSize: 14, color: 'var(--primary)', fontWeight: 600, whiteSpace: 'nowrap' }}>Tout voir</a>}

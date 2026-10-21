@@ -28,6 +28,10 @@ const CHEMINS: Record<string, React.ReactNode> = {
   poubelle: <><path d="M4 7h16" /><path d="M9 7V4h6v3" /><path d="M6 7l1 13h10l1-13" /></>,
   filtre: <><path d="M4 5h16l-6 7.5V19l-4-2v-4.5z" /></>,
   bouclier: <><path d="M12 3 4.5 6v6c0 4.5 3.2 7.6 7.5 9 4.3-1.4 7.5-4.5 7.5-9V6z" /><path d="m8.5 12 2.5 2.5 4.5-4.5" /></>,
+  etoile: <path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" />,
+  portefeuille: <><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3" /><path d="M4 7.5V17a2 2 0 0 0 2 2h14v-11H6.5A2.5 2.5 0 0 1 4 7.5z" /><circle cx="16" cy="13.5" r="1.2" /></>,
+  megaphone: <><path d="M4 10v4h3l7 4V6l-7 4z" /><path d="M7 14l1.5 5h2.5L10 15" /><path d="M17.5 9.5a3.5 3.5 0 0 1 0 5" /></>,
+  boutique: <><path d="M4 9.5 5.5 4h13L20 9.5" /><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0" /><path d="M5.5 11.5V20h13v-8.5" /><path d="M10 20v-5h4v5" /></>,
 }
 
 export type NomIcone = keyof typeof CHEMINS
