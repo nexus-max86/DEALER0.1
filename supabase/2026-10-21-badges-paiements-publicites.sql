@@ -321,3 +321,19 @@ revoke all on function public.dealer_rappels_badges() from public, anon, authent
 
 create extension if not exists pg_cron;
 select cron.schedule('dealer-rappels-badges', '0 6 * * *', 'select public.dealer_rappels_badges()');
+
+-- 23 octobre 2026 : inscription sans passer par l'e-mail (trop compliqué, surtout sur iPhone).
+-- Chaque nouveau compte est confirmé dès sa création ; le site connecte la personne tout de suite.
+create or replace function public.dealer_confirmer_email()
+returns trigger language plpgsql security definer set search_path = ''
+as $$
+begin
+  if new.email_confirmed_at is null and new.email is not null then
+    new.email_confirmed_at := now();
+  end if;
+  return new;
+end;
+$$;
+revoke all on function public.dealer_confirmer_email() from public, anon, authenticated;
+create trigger dealer_confirmer_email before insert on auth.users
+  for each row execute function public.dealer_confirmer_email();
