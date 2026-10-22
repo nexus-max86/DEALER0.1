@@ -121,13 +121,20 @@ export default function Auth() {
       setLoading(false)
       return
     }
-    if (data.session && data.user) {
-      await assurerProfil(data.user).catch(() => {})
+    // Le compte est confirmé dès sa création (base de données) : on connecte la personne tout de suite,
+    // sans lui demander d'aller cliquer un lien dans sa boîte mail.
+    let session = data.session
+    if (!session) {
+      const connexion = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+      session = connexion.data.session
+    }
+    if (session) {
+      await assurerProfil(session.user).catch(() => {})
       setInfo('Compte créé ! Bienvenue sur DEALER.')
       window.location.href = suite
       return
     }
-    // La confirmation par email est activée : on explique clairement la suite
+    // Dernier recours : la confirmation par email est exigée
     setMode('verifier-email')
     setLoading(false)
   }
