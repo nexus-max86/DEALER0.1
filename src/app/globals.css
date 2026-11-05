@@ -239,7 +239,7 @@ button { font-family: inherit; }
 /* ---------- Guide d'installation (/installer) ---------- */
 .gi { max-width: 760px; margin: 0 auto; padding: 28px 16px 110px; }
 .gi-entete { text-align: center; margin-bottom: 22px; }
-.gi-icone { border-radius: 20px; box-shadow: 0 10px 24px rgba(0,119,130,0.25); margin-bottom: 16px; }
+.gi-icone { display: block; border-radius: 20px; box-shadow: 0 10px 24px rgba(0,119,130,0.25); margin: 0 auto 16px; }
 .gi-entete h1 { font-size: clamp(26px, 6vw, 34px); font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; }
 .gi-entete p { color: var(--text-secondary); font-size: 15.5px; line-height: 1.6; margin: 10px auto 0; max-width: 520px; }
 .gi-alerte { display: flex; gap: 12px; align-items: flex-start; padding: 16px; margin-bottom: 16px; font-size: 14px; line-height: 1.55; }
@@ -324,3 +324,23 @@ button { font-family: inherit; }
 .gi-ajout-entete .gi-cible { font-weight: 800; padding: 2px 4px; }
 .gi-texte-bleu { color: #007AFF; }
 .gi-ajout { margin: 14px 8px; background: white; }
+
+/* ---------- Fenêtre « installe l'appli » après l'inscription ---------- */
+.bienvenue-fond { position: fixed; inset: 0; z-index: 400; background: rgba(0,24,32,0.55); display: flex; align-items: center; justify-content: center; padding: 16px; animation: bienvenue-fondu 0.2s ease-out; }
+.bienvenue { width: 100%; max-width: 420px; background: white; border-radius: 22px; padding: 28px 22px 16px; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.3); animation: bienvenue-monte 0.28s ease-out; }
+.bienvenue-icone { display: block; border-radius: 18px; box-shadow: 0 8px 20px rgba(0,119,130,0.28); margin: 0 auto 14px; }
+.bienvenue-ok { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--success); background: #E3F1E4; padding: 5px 12px; border-radius: 999px; margin-bottom: 10px; }
+.bienvenue h2 { font-size: 22px; font-weight: 800; line-height: 1.2; letter-spacing: -0.01em; }
+.bienvenue-texte { font-size: 14.5px; line-height: 1.55; color: var(--text-secondary); margin: 10px 0 18px; }
+.bienvenue-bouton { width: 100%; padding: 14px 18px; font-size: 16px; }
+.bienvenue-etapes { list-style: none; text-align: left; display: flex; flex-direction: column; gap: 8px; margin: 0 0 14px; padding: 12px 14px; background: var(--surface); border-radius: 14px; font-size: 14px; line-height: 1.45; }
+.bienvenue-etapes li { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.bienvenue-etapes li > span { width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: white; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.bienvenue-plus-tard { background: none; border: none; color: var(--text-secondary); font-weight: 600; font-size: 14px; padding: 14px 20px; margin-top: 4px; cursor: pointer; font-family: inherit; }
+@media (max-width: 768px) {
+  .bienvenue-fond { align-items: flex-end; padding: 0; }
+  .bienvenue { max-width: none; border-radius: 22px 22px 0 0; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+}
+@keyframes bienvenue-fondu { from { opacity: 0; } }
+@keyframes bienvenue-monte { from { transform: translateY(24px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .bienvenue-fond, .bienvenue { animation: none; } }

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { supabase, assurerProfil } from '@/lib/supabase'
 import Header from '@/components/Header'
+import { marquerNouveauCompte } from '@/lib/installation'
 
 type Mode = 'connexion' | 'inscription' | 'verifier-email' | 'oubli' | 'nouveau-mdp'
 
@@ -66,6 +67,7 @@ export default function Auth() {
     supabase.auth.getSession().then(async ({ data }) => {
       if (!data.session || recuperation) return
       await assurerProfil(data.session.user).catch(() => {})
+      if (url.searchParams.get('confirme')) marquerNouveauCompte()
       setInfo(url.searchParams.get('confirme') ? 'Email confirmé, tu es connecté. Redirection…' : 'Tu es déjà connecté. Redirection…')
       setTimeout(() => { window.location.href = next }, 900)
     })
@@ -130,6 +132,7 @@ export default function Auth() {
     }
     if (session) {
       await assurerProfil(session.user).catch(() => {})
+      marquerNouveauCompte()
       setInfo('Compte créé ! Bienvenue sur DEALER.')
       window.location.href = suite
       return

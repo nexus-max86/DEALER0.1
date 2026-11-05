@@ -2,9 +2,8 @@
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Icone from './Icone'
-import { memoriserInvite, lancerInstallation, dejaInstallee, estIphone, type InviteInstallation } from '@/lib/installation'
+import { memoriserInvite, lancerInstallation, dejaInstallee, estIphone, nouveauCompteAProposer, memoriserRefus, CLE_REFUS_INSTALLATION, type InviteInstallation } from '@/lib/installation'
 
-const CLE_REFUS = 'dealer-installation-refus'
 const DUREE_REFUS = 14 * 24 * 3600 * 1000 // « Plus tard » : on ne redemande pas avant 14 jours
 
 // Pages où le bandeau peut apparaître (jamais dans une conversation, à la connexion ou dans l'admin)
@@ -15,7 +14,7 @@ function pageAutorisee(chemin: string) {
 
 function refusRecent() {
   try {
-    const quand = Number(localStorage.getItem(CLE_REFUS))
+    const quand = Number(localStorage.getItem(CLE_REFUS_INSTALLATION))
     return !!quand && Math.abs(Date.now() - quand) < DUREE_REFUS
   } catch { return false }
 }
@@ -63,7 +62,7 @@ export default function ApplicationMobile() {
   }, [])
 
   function plusTard() {
-    try { localStorage.setItem(CLE_REFUS, String(Date.now())) } catch { /* stockage indisponible */ }
+    memoriserRefus()
     setMode(null)
   }
 
@@ -73,7 +72,7 @@ export default function ApplicationMobile() {
     setMode(null)
   }
 
-  if (!mode || !pret || !pageAutorisee(chemin)) return null
+  if (!mode || !pret || !pageAutorisee(chemin) || nouveauCompteAProposer()) return null
 
   return (
     <div role="dialog" aria-label="Installer DEALER" className="cookie-banner" style={{ position: 'fixed', left: 12, right: 12, zIndex: 190 }}>

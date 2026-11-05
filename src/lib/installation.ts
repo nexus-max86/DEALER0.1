@@ -60,3 +60,24 @@ export function navigateurIntegre(): 'Facebook' | 'Instagram' | 'WhatsApp' | 'un
   if (/Android/.test(ua) && /; wv\)/.test(ua)) return 'une application'
   return null
 }
+
+// Proposition d'installation juste après la création du compte (affichée une seule fois)
+const CLE_NOUVEAU_COMPTE = 'dealer-proposer-installation'
+
+export function marquerNouveauCompte() {
+  try { localStorage.setItem(CLE_NOUVEAU_COMPTE, String(Date.now())) } catch { /* stockage indisponible */ }
+}
+
+export function nouveauCompteAProposer() {
+  try { return !!localStorage.getItem(CLE_NOUVEAU_COMPTE) } catch { return false }
+}
+
+export function oublierNouveauCompte() {
+  try { localStorage.removeItem(CLE_NOUVEAU_COMPTE) } catch { /* stockage indisponible */ }
+}
+
+// « Plus tard » : on ne repropose pas l'installation avant 14 jours
+export const CLE_REFUS_INSTALLATION = 'dealer-installation-refus'
+export function memoriserRefus() {
+  try { localStorage.setItem(CLE_REFUS_INSTALLATION, String(Date.now())) } catch { /* stockage indisponible */ }
+}

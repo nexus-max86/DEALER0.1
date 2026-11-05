@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import CookieBanner from '@/components/CookieBanner'
 import ApplicationMobile from '@/components/ApplicationMobile'
+import BienvenueInstallation from '@/components/BienvenueInstallation'
 import { SITE_URL } from '@/lib/catalogue'
 
 export const metadata: Metadata = {
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <CookieBanner />
         <ApplicationMobile />
+        <BienvenueInstallation />
       </body>
     </html>
   )
