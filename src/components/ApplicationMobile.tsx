@@ -2,12 +2,7 @@
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Icone from './Icone'
-
-// Événement « beforeinstallprompt » (Android / Chrome) : pas encore typé par TypeScript
-type InviteInstallation = Event & {
-  prompt: () => Promise<void>
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
-}
+import { memoriserInvite, lancerInstallation, dejaInstallee, estIphone, type InviteInstallation } from '@/lib/installation'
 
 const CLE_REFUS = 'dealer-installation-refus'
 const DUREE_REFUS = 14 * 24 * 3600 * 1000 // « Plus tard » : on ne redemande pas avant 14 jours
@@ -16,11 +11,6 @@ const DUREE_REFUS = 14 * 24 * 3600 * 1000 // « Plus tard » : on ne redemande p
 function pageAutorisee(chemin: string) {
   return ['/', '/search', '/favorites', '/account'].includes(chemin)
     || ['/category/', '/product/', '/profile/'].some(debut => chemin.startsWith(debut))
-}
-
-function dejaInstallee() {
-  return window.matchMedia('(display-mode: standalone)').matches
-    || (navigator as Navigator & { standalone?: boolean }).standalone === true
 }
 
 function refusRecent() {
@@ -34,15 +24,9 @@ function cookiesRepondus() {
   try { return !!localStorage.getItem('dealer-cookies') } catch { return true }
 }
 
-function estIphone() {
-  const ua = navigator.userAgent
-  return /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)
-}
-
 // Enregistre le service worker et propose d'installer DEALER sur l'écran d'accueil
 export default function ApplicationMobile() {
   const chemin = usePathname() || '/'
-  const [invite, setInvite] = useState<InviteInstallation | null>(null)
   const [mode, setMode] = useState<'android' | 'iphone' | null>(null)
   const [pret, setPret] = useState(false)
 
@@ -54,10 +38,10 @@ export default function ApplicationMobile() {
 
     function surInvite(e: Event) {
       e.preventDefault()
-      setInvite(e as InviteInstallation)
+      memoriserInvite(e as InviteInstallation)
       if (!refusRecent()) setMode('android')
     }
-    function installee() { setMode(null); setInvite(null) }
+    function installee() { setMode(null); memoriserInvite(null) }
     window.addEventListener('beforeinstallprompt', surInvite)
     window.addEventListener('appinstalled', installee)
 
@@ -84,11 +68,8 @@ export default function ApplicationMobile() {
   }
 
   async function installer() {
-    if (!invite) return
-    await invite.prompt()
-    const { outcome } = await invite.userChoice
-    if (outcome === 'dismissed') plusTard()
-    setInvite(null)
+    const resultat = await lancerInstallation()
+    if (resultat === 'dismissed') plusTard()
     setMode(null)
   }
 
@@ -104,7 +85,7 @@ export default function ApplicationMobile() {
             <p style={{ fontSize: 12.5, color: 'var(--text-secondary)', lineHeight: 1.4, marginTop: 2 }}>Ouvre DEALER comme une appli, en un geste depuis ton écran d’accueil.</p>
           ) : (
             <p style={{ fontSize: 12.5, color: 'var(--text-secondary)', lineHeight: 1.45, marginTop: 2 }}>
-              Touche <Icone nom="partagerIos" taille={15} style={{ display: 'inline', verticalAlign: '-3px', color: 'var(--primary)' }} titre="Partager" /> <b>Partager</b>, puis <b>« Sur l’écran d’accueil »</b>.
+              Touche <Icone nom="partagerIos" taille={15} style={{ display: 'inline', verticalAlign: '-3px', color: 'var(--primary)' }} titre="Partager" /> <b>Partager</b>, puis <b>« Sur l’écran d’accueil »</b>. <a href="/installer" style={{ color: 'var(--primary)', fontWeight: 700, textDecoration: 'underline' }}>Voir le guide</a>
             </p>
           )}
         </div>

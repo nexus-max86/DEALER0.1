@@ -12,6 +12,7 @@ const faqs = [
   { q: 'Est-ce que DEALER est gratuit ?', r: 'Oui, publier est 100% gratuit. Des options premium arrivent bientôt.' },
   { q: 'Comment contacter un vendeur ?', r: 'Sur la page de l’annonce, écrivez votre message et touchez « Envoyer le message ». Le vendeur reçoit une notification et vous répond dans « Messages ». WhatsApp est proposé en option si le vendeur a ajouté son numéro.' },
   { q: 'Comment savoir si un article est toujours disponible ?', r: 'Chaque annonce affiche « Disponible », « Réservé » ou « Vendu », et le stock restant. Ajoutez l’article à vos favoris pour recevoir une alerte quand sa disponibilité change.' },
+  { q: 'Comment installer DEALER sur mon téléphone ?', r: 'Sur Android : dans Chrome, touche ⋮ puis « Installer l’application ». Sur iPhone : dans Safari, touche Partager puis « Sur l’écran d’accueil ». Le guide en images est sur la page /installer.' },
   { q: 'DEALER gère-t-il la livraison ?', r: 'DEALER met en relation. La livraison est organisée entre acheteur et vendeur.' },
   { q: 'Comment signaler une annonce ?', r: 'Écrivez à support@dealer-luba.com en indiquant le lien de l’annonce.' },
   { q: 'Mes données sont-elles sécurisées ?', r: 'Votre mot de passe est protégé et vos données ne sont pas vendues. Votre numéro WhatsApp est facultatif ; si vous l’ajoutez, il est proposé sur vos annonces. Voir la politique de confidentialité.' },
@@ -38,6 +39,11 @@ export default function FAQ() {
               </details>
             ))}
           </div>
+          <a href="/installer" className="carte" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: 16, marginTop: 24 }}>
+            <img src="/icons/icon-192.png" alt="" width={44} height={44} style={{ borderRadius: 11 }} />
+            <span style={{ flex: 1 }}><b style={{ display: 'block' }}>Installer DEALER sur ton téléphone</b><span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Guide en images pour Android et iPhone</span></span>
+            <span style={{ color: 'var(--primary)', fontWeight: 800 }}>→</span>
+          </a>
           <div className="card" style={{ padding: 24, marginTop: 32, textAlign: 'center' }}>
             <p style={{ fontWeight: 700, marginBottom: 6 }}>Vous n'avez pas trouvé votre réponse ?</p>
             <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 16 }}>Notre équipe répond sous 24 heures.</p>

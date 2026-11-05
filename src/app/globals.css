@@ -235,3 +235,92 @@ button { font-family: inherit; }
 .pub { display: flex; gap: 14px; align-items: center; padding: 14px; text-decoration: none; color: var(--text); position: relative; }
 .pub img { width: 88px; height: 88px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
 .pub-etiquette { position: absolute; top: 8px; right: 10px; font-size: 10.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* ---------- Guide d'installation (/installer) ---------- */
+.gi { max-width: 760px; margin: 0 auto; padding: 28px 16px 110px; }
+.gi-entete { text-align: center; margin-bottom: 22px; }
+.gi-icone { border-radius: 20px; box-shadow: 0 10px 24px rgba(0,119,130,0.25); margin-bottom: 16px; }
+.gi-entete h1 { font-size: clamp(26px, 6vw, 34px); font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; }
+.gi-entete p { color: var(--text-secondary); font-size: 15.5px; line-height: 1.6; margin: 10px auto 0; max-width: 520px; }
+.gi-alerte { display: flex; gap: 12px; align-items: flex-start; padding: 16px; margin-bottom: 16px; font-size: 14px; line-height: 1.55; }
+.gi-ok { background: #E3F1E4; border-color: #BFDCC2; color: #234D27; }
+.gi-attention { background: var(--cuivre-clair); border-color: #EBC7A6; color: #6B3612; }
+.gi-rapide { padding: 18px; margin-bottom: 18px; text-align: center; }
+.gi-rapide > p:first-child { margin-bottom: 12px; font-size: 15px; }
+.gi-petit { font-size: 13px; color: var(--text-secondary); margin-top: 10px; }
+.gi-info { background: var(--primary-light); color: var(--primary-dark); font-weight: 600; font-size: 14px; padding: 12px 14px; border-radius: 10px; margin-bottom: 16px; text-align: center; }
+.gi-onglets { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 4px; gap: 4px; margin-bottom: 18px; position: sticky; top: 66px; z-index: 5; }
+.gi-onglets button { flex: 1; border: none; background: transparent; padding: 12px 8px; border-radius: 10px; font-size: 16px; font-weight: 700; color: var(--text-secondary); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.gi-onglets button.actif { background: white; color: var(--primary); box-shadow: 0 1px 4px rgba(0,39,48,0.12); }
+.gi-ton { font-size: 11px; font-weight: 600; color: var(--cuivre); }
+.gi-etapes { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.gi-etape { display: flex; gap: 18px; padding: 16px; align-items: center; }
+.gi-visuel { flex-shrink: 0; }
+.gi-texte { flex: 1; min-width: 0; }
+.gi-numero { display: inline-flex; width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: white; font-weight: 800; font-size: 15px; align-items: center; justify-content: center; margin-bottom: 8px; }
+.gi-texte h2 { font-size: 18px; font-weight: 800; line-height: 1.25; margin-bottom: 6px; }
+.gi-texte p { font-size: 14.5px; line-height: 1.55; color: var(--text-secondary); }
+.gi-aide { padding: 18px 20px; margin-top: 18px; }
+.gi-aide h2 { font-size: 17px; font-weight: 800; margin-bottom: 10px; }
+.gi-aide ul { padding-left: 20px; list-style: disc; margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.55; color: var(--text-secondary); }
+.gi-aide b { color: var(--text); }
+.gi-avantages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+.gi-avantages div { background: var(--primary-light); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 4px; color: var(--primary-dark); }
+.gi-avantages b { font-size: 14.5px; color: var(--text); margin-top: 4px; }
+.gi-avantages span { font-size: 12.5px; line-height: 1.45; color: var(--text-secondary); }
+.gi-partage { text-align: center; margin-top: 26px; }
+.gi-partage p { font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; }
+@media (max-width: 560px) {
+  .gi-etape { gap: 14px; padding: 14px; }
+  .gi-avantages { grid-template-columns: 1fr; }
+}
+
+/* Mini-téléphones des étapes */
+.gi-tel { width: 132px; height: 236px; border-radius: 22px; background: #0E1A1C; padding: 6px; display: flex; flex-direction: column; box-shadow: 0 8px 18px rgba(0,39,48,0.18); }
+.gi-ecran { position: relative; flex: 1; background: white; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+.gi-tel > .gi-safari { margin-top: 0; }
+.gi-barre { display: flex; align-items: center; gap: 4px; padding: 8px 6px 6px; background: #F1F3F4; }
+.gi-adresse { flex: 1; display: flex; align-items: center; gap: 3px; background: white; border-radius: 999px; font-size: 7.5px; color: #3C4043; padding: 4px 6px; white-space: nowrap; overflow: hidden; }
+.gi-points { font-size: 15px; font-weight: 900; color: #3C4043; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+.gi-site { padding: 10px 8px; display: flex; flex-direction: column; gap: 6px; }
+.gi-site-logo { font-size: 10px; font-weight: 800; display: flex; align-items: center; gap: 2px; color: var(--text); }
+.gi-site-logo .logo-marque { width: 7px; height: 7px; border-radius: 2px; box-shadow: 3px 3px 0 var(--primary); margin-right: 5px; }
+.gi-ligne { height: 7px; border-radius: 4px; background: #DCE4E5; }
+.gi-ligne.l1 { width: 85%; height: 10px; background: #B8CBCD; margin-top: 6px; }
+.gi-ligne.l2 { width: 60%; }
+.gi-tuiles { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 6px; }
+.gi-tuiles i { aspect-ratio: 1; border-radius: 6px; background: var(--primary-light); }
+.gi-cible { outline: 2.5px solid #F59E0B; outline-offset: 1px; border-radius: 6px; background: #FFF4D6 !important; animation: gi-pulse 1.6s ease-in-out infinite; }
+.gi-cible-douce { animation: gi-pulse 1.6s ease-in-out infinite; }
+@keyframes gi-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.55); } 50% { box-shadow: 0 0 0 6px rgba(245,158,11,0); } }
+@media (prefers-reduced-motion: reduce) { .gi-cible, .gi-cible-douce { animation: none; } }
+.gi-menu { position: absolute; top: 30px; right: 6px; width: 92px; background: white; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.22); padding: 4px; display: flex; flex-direction: column; gap: 2px; font-size: 7.5px; color: #202124; }
+.gi-menu span { padding: 5px 5px; display: flex; align-items: center; gap: 3px; }
+.gi-menu .gi-cible { font-weight: 700; }
+.gi-voile { position: absolute; inset: 0; background: rgba(0,0,0,0.35); }
+.gi-dialogue { position: absolute; left: 8px; right: 8px; top: 62px; background: white; border-radius: 12px; padding: 10px; font-size: 8px; color: #202124; }
+.gi-dialogue-titre { font-weight: 800; font-size: 9.5px; margin-bottom: 8px; }
+.gi-dialogue-appli { display: flex; align-items: center; gap: 6px; line-height: 1.3; color: #5F6368; font-size: 7px; }
+.gi-dialogue-appli b { color: #202124; font-size: 9px; }
+.gi-dialogue-appli img { width: 26px; height: 26px; border-radius: 7px; }
+.gi-dialogue-boutons { display: flex; justify-content: flex-end; gap: 6px; margin-top: 10px; font-weight: 700; color: var(--primary); }
+.gi-dialogue-boutons span { padding: 4px 7px; }
+.gi-plein { color: var(--primary-dark); }
+.gi-accueil { flex: 1; background: linear-gradient(160deg, #3A6073, #16222A); display: grid; grid-template-columns: repeat(4, 22px); justify-content: center; gap: 12px 6px; padding: 28px 6px 8px; align-content: start; }
+.gi-accueil i { width: 22px; height: 22px; border-radius: 6px; background: rgba(255,255,255,0.22); }
+.gi-appli { display: flex; flex-direction: column; align-items: center; gap: 2px; border-radius: 6px; width: 22px; }
+.gi-appli img { width: 22px; height: 22px; border-radius: 6px; display: block; }
+.gi-appli b { font-size: 5.5px; color: white; font-weight: 600; }
+.gi-safari { background: #F2F2F7; border-radius: 0 0 16px 16px; padding: 6px 8px 8px; margin: -16px 0 0; position: relative; z-index: 2; display: flex; }
+.gi-tel > .gi-safari { margin: -6px 0 0; border-radius: 0 0 16px 16px; }
+.gi-safari-outils { justify-content: space-between; align-items: center; font-size: 13px; color: #007AFF; font-weight: 600; padding: 8px 10px 9px; }
+.gi-safari-outils span { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; }
+.gi-feuille { position: absolute; left: 0; right: 0; bottom: 0; background: #F2F2F7; border-radius: 14px 14px 0 0; padding: 8px 6px 10px; display: flex; flex-direction: column; gap: 3px; font-size: 8px; color: #1C1C1E; }
+.gi-feuille > span { background: white; padding: 7px 7px; border-radius: 7px; display: flex; align-items: center; gap: 5px; }
+.gi-feuille .gi-cible { font-weight: 700; }
+.gi-plus { width: 12px; height: 12px; border: 1.3px solid #1C1C1E; border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; line-height: 1; }
+.gi-ajout-entete { display: flex; justify-content: space-between; align-items: center; padding: 12px 6px 8px; font-size: 7.5px; color: #007AFF; background: #F2F2F7; }
+.gi-ajout-entete b { color: #1C1C1E; font-size: 8px; }
+.gi-ajout-entete .gi-cible { font-weight: 800; padding: 2px 4px; }
+.gi-texte-bleu { color: #007AFF; }
+.gi-ajout { margin: 14px 8px; background: white; }
