@@ -31,8 +31,8 @@ export const VILLES = ['Lubumbashi', 'Kinshasa', 'Kolwezi', 'Likasi', 'Goma', 'B
 
 export const ETATS = ['Neuf avec étiquette', 'Neuf sans étiquette', 'Très bon état', 'Bon état', 'État correct']
 
-// Photo réelle de Lubumbashi (jonathan BUHENDWA, Unsplash)
-export const PHOTO_ACCUEIL = { id: 'photo-1568720575666-84231057a1e2', credit: 'Lubumbashi · Photo jonathan BUHENDWA / Unsplash' }
+// Photo d'accueil : un marché animé (Unsplash)
+export const PHOTO_ACCUEIL = { id: 'photo-1777065851469-71aef898a26f', credit: 'Photo Unsplash' }
 
 export const PHOTOS_ETAPES = {
   photographier: 'photo-1581442616850-7bcff1d80af7',

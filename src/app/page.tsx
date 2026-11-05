@@ -42,9 +42,9 @@ export default async function Home() {
       <Header />
       <main>
 
-        {/* ACCUEIL : vraie photo de Lubumbashi */}
+        {/* ACCUEIL : photo d'un marché */}
         <section style={{ position: 'relative', minHeight: 440, display: 'flex', alignItems: 'center', background: '#06262b', overflow: 'hidden' }}>
-          <img src={photo(PHOTO_ACCUEIL.id, 1800)} alt="Une rue de Lubumbashi" fetchPriority="high"
+          <img src={photo(PHOTO_ACCUEIL.id, 1800)} alt="Un marché animé, avec des vendeurs et des acheteurs" fetchPriority="high"
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(0,30,36,0.92) 0%, rgba(0,39,48,0.72) 55%, rgba(0,39,48,0.35) 100%)' }} />
           <div className="container" style={{ position: 'relative', padding: '56px 0', color: 'white' }}>

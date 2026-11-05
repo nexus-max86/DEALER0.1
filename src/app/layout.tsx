@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'DEALER - Marketplace de Lubumbashi',
     description: 'Achetez et vendez facilement à Lubumbashi.',
-    images: ['https://images.unsplash.com/photo-1568720575666-84231057a1e2?auto=format&fit=crop&q=70&w=1200&h=630'],
+    images: ['https://images.unsplash.com/photo-1777065851469-71aef898a26f?auto=format&fit=crop&q=70&w=1200&h=630'],
     url: SITE_URL,
     siteName: 'DEALER',
     locale: 'fr_CD',
