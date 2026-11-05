@@ -21,6 +21,7 @@ const faqItems = [
   { q: 'Comment contacter un vendeur ?', r: 'Ouvre l’annonce, écris ton message et touche « Envoyer le message ». Le vendeur reçoit une notification et te répond dans ta messagerie DEALER. Si le vendeur a ajouté son numéro, WhatsApp est aussi proposé.' },
   { q: 'Comment savoir si un article est encore disponible ?', r: 'Chaque annonce indique « Disponible », « Réservé » ou « Vendu ». Ajoute l’article à tes favoris : tu reçois une alerte dès que sa disponibilité change.' },
   { q: 'Comment acheter sans risque ?', r: 'Rencontre le vendeur dans un lieu public, vérifie l’article avant de payer et ne paie jamais à l’avance.' },
+  { q: 'Comment installer DEALER sur mon téléphone ?', r: 'Sur Android, touche « Installer » quand DEALER te le propose, ou ouvre le menu ⋮ de Chrome puis « Installer l’application ». Sur iPhone, ouvre DEALER dans Safari, touche Partager puis « Sur l’écran d’accueil ». DEALER s’ouvre ensuite comme une appli.' },
   { q: 'Qui voit mon numéro ?', r: 'Ton numéro WhatsApp est facultatif. Si tu l’ajoutes, il est proposé sur tes annonces aux acheteurs qui préfèrent WhatsApp. Tu peux le retirer à tout moment dans « Mon compte ».' },
 ]
 
@@ -164,7 +165,7 @@ export default async function Home() {
               ))}
             </div>
             <div style={{ textAlign: 'center', marginTop: 24 }}>
-              <a href="/faq" style={{ color: 'var(--primary)', fontWeight: 600, fontSize: 14 }}>Voir toutes les questions</a>
+              <a href="/faq" className="lien-tactile" style={{ color: 'var(--primary)', fontWeight: 600, fontSize: 14 }}>Voir toutes les questions</a>
             </div>
           </div>
         </section>

@@ -12,7 +12,7 @@ export default function Confidentialite() {
       <Header />
       <main style={{ background: 'var(--surface)', minHeight: '100vh', padding: '40px 16px' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <a href="/" style={{ fontSize: 13, color: 'var(--primary)', display: 'inline-block', marginBottom: 24 }}>← Retour</a>
+          <a href="/" className="lien-tactile" style={{ fontSize: 13, color: 'var(--primary)', display: 'inline-block', marginBottom: 24 }}>← Retour</a>
           <h1 style={{ fontSize: 30, fontWeight: 800, marginBottom: 6 }}>Politique de confidentialité</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 32 }}>Dernière mise à jour : janvier 2026</p>
           <div className="card" style={{ padding: 32 }}>

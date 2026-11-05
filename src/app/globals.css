@@ -69,6 +69,13 @@ details summary::-webkit-details-marker { display: none; }
 .cookie-banner { bottom: 16px; }
 @media (max-width: 768px) { .cookie-banner { bottom: 76px; } }
 
+/* Zones de toucher d'au moins 44 px sur téléphone pour les petits liens texte */
+@media (max-width: 768px) {
+  .lien-tactile { display: inline-block; padding: 12px 0; margin: -12px 0; }
+  .lien-discret { padding: 12px 0; margin: -12px 0; }
+  footer a { display: inline-block; padding: 8px 0; }
+}
+
 /* Catégories de l'accueil : 4 par ligne sur ordinateur, 2 sur téléphone */
 .grille-categories { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .grille-categories .cat-photo { height: 170px; }

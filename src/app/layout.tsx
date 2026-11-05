@@ -1,6 +1,7 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import CookieBanner from '@/components/CookieBanner'
+import ApplicationMobile from '@/components/ApplicationMobile'
 import { SITE_URL } from '@/lib/catalogue'
 
 export const metadata: Metadata = {
@@ -17,6 +18,13 @@ export const metadata: Metadata = {
     type: 'website',
   },
   robots: { index: true, follow: true },
+  applicationName: 'DEALER',
+  // Installation sur iPhone (Safari → Partager → Sur l'écran d'accueil)
+  appleWebApp: { capable: true, title: 'DEALER', statusBarStyle: 'default' },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#007782',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -38,6 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <CookieBanner />
+        <ApplicationMobile />
       </body>
     </html>
   )

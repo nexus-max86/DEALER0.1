@@ -24,7 +24,7 @@ export default function FAQ() {
       <Header />
       <main style={{ background: 'var(--surface)', minHeight: '100vh', padding: '40px 16px' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <a href="/" style={{ fontSize: 13, color: 'var(--primary)', display: 'inline-block', marginBottom: 24 }}>← Retour</a>
+          <a href="/" className="lien-tactile" style={{ fontSize: 13, color: 'var(--primary)', display: 'inline-block', marginBottom: 24 }}>← Retour</a>
           <h1 style={{ fontSize: 30, fontWeight: 800, marginBottom: 6 }}>Questions fréquentes</h1>
           <p style={{ color: 'var(--text-secondary)', marginBottom: 32 }}>Réponse garantie sous 24h si vous ne trouvez pas.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

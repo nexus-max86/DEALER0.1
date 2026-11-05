@@ -34,7 +34,7 @@ const inputStyle: React.CSSProperties = {
 }
 const labelStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }
 const aideStyle: React.CSSProperties = { fontSize: 12, color: 'var(--text-secondary)', marginTop: 5 }
-const lienStyle: React.CSSProperties = { background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, fontSize: 14, cursor: 'pointer', padding: 0, fontFamily: 'inherit' }
+const lienStyle: React.CSSProperties = { background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, fontSize: 14, cursor: 'pointer', padding: '10px 6px', fontFamily: 'inherit' }
 
 export default function Auth() {
   const [mode, setMode] = useState<Mode>('connexion')

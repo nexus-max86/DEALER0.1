@@ -22,6 +22,8 @@ const CHEMINS: Record<string, React.ReactNode> = {
   cadeau: <><path d="M4 10h16v10H4z" /><path d="M3 7h18v3H3z" /><path d="M12 7v13" /><path d="M12 7c-2-3.5-5.5-3-5.5-1S9 7 12 7c3 0 5.5-1 5.5-1S14 3.5 12 7z" /></>,
   retour: <><path d="M15 5 8 12l7 7" /></>,
   suite: <><path d="m9 5 7 7-7 7" /></>,
+  partagerIos: <><path d="M12 3.5v11" /><path d="m8 7.5 4-4 4 4" /><path d="M8.5 10.5H6v10h12v-10h-2.5" /></>,
+  installer: <><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" /><path d="M12 7.5v7" /><path d="m9 11.5 3 3 3-3" /></>,
   fermer: <><path d="m6 6 12 12" /><path d="M18 6 6 18" /></>,
   sortie: <><path d="M14 4h5v16h-5" /><path d="M10 8 6 12l4 4" /><path d="M6 12h10" /></>,
   crayon: <><path d="m4 20 1-4L16 5l3 3L8 19z" /><path d="m14 7 3 3" /></>,

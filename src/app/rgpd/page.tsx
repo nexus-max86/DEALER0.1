@@ -12,7 +12,7 @@ export default function RGPD() {
       <Header />
       <main style={{ background: 'var(--surface)', minHeight: '100vh', padding: '40px 16px' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <a href="/" style={{ fontSize: 13, color: 'var(--primary)', display: 'inline-block', marginBottom: 24 }}>← Retour</a>
+          <a href="/" className="lien-tactile" style={{ fontSize: 13, color: 'var(--primary)', display: 'inline-block', marginBottom: 24 }}>← Retour</a>
           <h1 style={{ fontSize: 30, fontWeight: 800, marginBottom: 6 }}>Vos droits RGPD</h1>
           <p style={{ color: 'var(--text-secondary)', marginBottom: 32 }}>Conformément au Règlement Général sur la Protection des Données.</p>
           <div className="card" style={{ padding: 32, marginBottom: 20 }}>
